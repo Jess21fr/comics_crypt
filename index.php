@@ -9,7 +9,7 @@ function api_get_json(string $url): ?array {
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_TIMEOUT => 10,
+        CURLOPT_TIMEOUT => 15,
         CURLOPT_USERAGENT => "ComicsCrypt/1.0"
     ]);
 
@@ -23,9 +23,76 @@ function api_get_json(string $url): ?array {
 }
 
 // ------------------------------------------------------------
-// ROUTAGE SIMPLE PAR ÉTAPE
+// Convertir "September 2014" → "01/09/2014"
 // ------------------------------------------------------------
-$step = $_GET['step'] ?? 'search';
+function convertDateToFR($dateStr) {
+
+    $months = [
+        "January" => "01", "February" => "02", "March" => "03",
+        "April" => "04", "May" => "05", "June" => "06",
+        "July" => "07", "August" => "08", "September" => "09",
+        "October" => "10", "November" => "11", "December" => "12"
+    ];
+
+    foreach ($months as $en => $num) {
+        if (stripos($dateStr, $en) !== false) {
+            $year = preg_replace('/[^0-9]/', '', $dateStr);
+            return "01/" . $num . "/" . $year;
+        }
+    }
+
+    return $dateStr;
+}
+
+// ------------------------------------------------------------
+// Récupération des résultats
+// ------------------------------------------------------------
+$rows = [];
+$error = null;
+
+if (!empty($_POST)) {
+
+    $serieName = trim($_POST['series']);
+    $issueNum  = trim($_POST['issue']);
+
+    $url = "https://www.comics.org/api/series/name/" . urlencode($serieName)
+         . "/issue/" . urlencode($issueNum) . "/?format=json";
+
+    $json = api_get_json($url);
+
+    if (!$json || empty($json['results'])) {
+        $error = "Aucun résultat trouvé.";
+    } else {
+
+        foreach ($json['results'] as $item) {
+
+            // 1. Filtrer les variantes
+            if (strpos($item['descriptor'], '[') !== false) {
+                continue;
+            }
+
+            // 2. Récupérer le nombre total d’épisodes
+            $serieJson = api_get_json($item['series']);
+            $totalIssues = $serieJson['issue_count'] ?? '?';
+
+            // 3. Récupérer la couverture
+            $issueJson = api_get_json($item['api_url']);
+            $cover = $issueJson['cover']['thumb_url'] ?? '';
+
+            // 4. Convertir la date
+            $dateFR = convertDateToFR($item['publication_date']);
+
+            // 5. Ajouter la ligne
+            $rows[] = [
+                "series" => $item['series_name'],
+                "number" => $item['descriptor'],
+                "total"  => $totalIssues,
+                "date"   => $dateFR,
+                "cover"  => $cover
+            ];
+        }
+    }
+}
 
 ?>
 <!DOCTYPE html>
@@ -33,149 +100,81 @@ $step = $_GET['step'] ?? 'search';
 <head>
 <meta charset="UTF-8">
 <title>Comics Crypt – Recherche</title>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- FancyTable -->
+<script src="https://cdn.jsdelivr.net/npm/fancytable/dist/fancyTable.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fancytable/dist/fancyTable.min.css">
+
 <style>
     body { font-family: Arial; padding: 20px; }
     input[type=text] { width: 300px; padding: 6px; margin-bottom: 10px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 10px; }
-    img { max-height: 250px; }
-    a { text-decoration: none; color: #0066cc; }
+    table img { max-height: 120px; }
+    button.add-btn { padding: 6px 12px; }
 </style>
+
 </head>
 <body>
 
-<?php
-// ============================================================================
-// ÉTAPE 1 — FORMULAIRE + LISTE DES SÉRIES
-// ============================================================================
-if ($step === 'search'):
+<h2>Recherche d'épisodes</h2>
 
-    $results = [];
+<form method="post">
+    <label>Nom de la série :</label><br>
+    <input type="text" name="series" value="<?= htmlspecialchars($_POST['series'] ?? 'avengers') ?>"><br>
 
-    if (!empty($_POST)) {
-        $editor = trim($_POST['editor']);
-        $series = trim($_POST['series']);
-
-        // Recherche large (publisher ne fonctionne pas dans l'API)
-        $url = "https://www.comics.org/search/advanced/?format=json"
-             . "&series=" . urlencode($series);
-
-        $raw = api_get_json($url);
-
-        // Filtrage manuel par éditeur
-        if ($raw && !empty($raw['results'])) {
-            foreach ($raw['results'] as $item) {
-                if (stripos($item['publisher_name'], $editor) !== false) {
-                    $results[] = $item;
-                }
-            }
-        }
-    }
-?>
-
-<h2>Recherche d'une série</h2>
-
-<form method="post" action="?step=search">
-    <label>Éditeur :</label><br>
-    <input type="text" name="editor" value="<?= htmlspecialchars($_POST['editor'] ?? 'marvel') ?>"><br>
-
-    <label>Série (mot-clé) :</label><br>
-    <input type="text" name="series" value="<?= htmlspecialchars($_POST['series'] ?? '') ?>"><br>
+    <label>Numéro de l'épisode :</label><br>
+    <input type="text" name="issue" value="<?= htmlspecialchars($_POST['issue'] ?? '1') ?>"><br>
 
     <button type="submit">Rechercher</button>
 </form>
 
-<?php if (!empty($_POST) && empty($results)): ?>
-    <p>Aucune série trouvée.</p>
+<?php if ($error): ?>
+    <p style="color:red;"><?= $error ?></p>
 <?php endif; ?>
 
-<?php if (!empty($results)): ?>
+<?php if (!empty($rows)): ?>
 
-    <h3>Séries trouvées :</h3>
-    <ul>
-        <?php foreach ($results as $serie): ?>
-            <li>
-                <a href="?step=issues&series_id=<?= $serie['id'] ?>">
-                    <?= htmlspecialchars($serie['name']) ?>
-                </a>
-            </li>
-        <?php endforeach; ?>
-    </ul>
+<h3>Résultats</h3>
 
-<?php endif; ?>
-
-<?php
-// ============================================================================
-// ÉTAPE 2 — LISTE DES ÉPISODES D’UNE SÉRIE
-// ============================================================================
-elseif ($step === 'issues'):
-
-    $seriesId = $_GET['series_id'] ?? null;
-    if (!$seriesId) die("ID série manquant");
-
-    $url = "https://www.comics.org/api/series/{$seriesId}/issues/?format=json";
-    $issues = api_get_json($url);
-?>
-
-<h2>Liste des épisodes</h2>
-
-<p><a href="?step=search">← Retour</a></p>
-
-<?php if ($issues && !empty($issues['issues'])): ?>
-
-<table>
-    <tr>
-        <th>Numéro</th>
-        <th>Date</th>
-        <th>Détails</th>
-    </tr>
-
-    <?php foreach ($issues['issues'] as $issue): ?>
+<table id="issuesTable" class="fancyTable">
+    <thead>
         <tr>
-            <td><?= htmlspecialchars($issue['number']) ?></td>
-            <td><?= htmlspecialchars($issue['publication_date']) ?></td>
-            <td>
-                <a href="?step=details&issue_id=<?= $issue['id'] ?>">Voir</a>
-            </td>
+            <th>Nom de la série</th>
+            <th>Numéro</th>
+            <th>Date</th>
+            <th>Couverture</th>
+            <th>Ajouter</th>
         </tr>
-    <?php endforeach; ?>
-
+    </thead>
+    <tbody>
+        <?php foreach ($rows as $row): ?>
+        <tr>
+            <td><?= htmlspecialchars($row['series']) ?></td>
+            <td><?= htmlspecialchars($row['number']) ?> / <?= htmlspecialchars($row['total']) ?></td>
+            <td><?= htmlspecialchars($row['date']) ?></td>
+            <td>
+                <?php if ($row['cover']): ?>
+                    <img src="<?= $row['cover'] ?>">
+                <?php endif; ?>
+            </td>
+            <td><button class="add-btn">Ajouter</button></td>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
 </table>
 
-<?php else: ?>
-    <p>Aucun épisode trouvé.</p>
-<?php endif; ?>
-
-<?php
-// ============================================================================
-// ÉTAPE 3 — FICHE COMPLÈTE D’UN ÉPISODE
-// ============================================================================
-elseif ($step === 'details'):
-
-    $issueId = $_GET['issue_id'] ?? null;
-    if (!$issueId) die("ID épisode manquant");
-
-    $url = "https://www.comics.org/api/issue/{$issueId}/?format=json";
-    $issue = api_get_json($url);
-?>
-
-<h2>Détails de l'épisode</h2>
-
-<p><a href="?step=search">← Retour à la recherche</a></p>
-
-<?php if ($issue): ?>
-
-<p><strong>Série :</strong> <?= htmlspecialchars($issue['series']['name']) ?></p>
-<p><strong>Numéro :</strong> <?= htmlspecialchars($issue['number']) ?></p>
-<p><strong>Date :</strong> <?= htmlspecialchars($issue['publication_date']) ?></p>
-
-<?php if (!empty($issue['cover']['thumb_url'])): ?>
-    <img src="<?= $issue['cover']['thumb_url'] ?>" alt="Couverture">
-<?php endif; ?>
-
-<?php else: ?>
-    <p>Impossible de récupérer les détails.</p>
-<?php endif; ?>
+<script>
+$(document).ready(function() {
+    $("#issuesTable").fancyTable({
+        sortColumn: 0,
+        pagination: true,
+        perPage: 10,
+        searchable: true
+    });
+});
+</script>
 
 <?php endif; ?>
 
