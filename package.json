@@ -1,0 +1,26 @@
+{
+  "name": "comics_crypt",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jess21fr/comics_crypt.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Jess21fr/comics_crypt/issues"
+  },
+  "homepage": "https://github.com/Jess21fr/comics_crypt#readme",
+  "dependencies": {
+    "playwright": "^1.60.0",
+    "playwright-extra": "^4.3.6",
+    "playwright-extra-plugin-stealth": "^0.0.1"
+  }
+}
