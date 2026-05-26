@@ -3,9 +3,8 @@ const { chromium } = require('playwright');
 (async () => {
     const url = process.argv[2];
 
-    // IMPORTANT : Chromium doit être visible pour que Cloudflare laisse passer
     const browser = await chromium.launch({
-        headless: false,   // fenêtre visible obligatoire
+        headless: false,
         args: [
             '--disable-blink-features=AutomationControlled',
             '--disable-web-security',
@@ -25,11 +24,17 @@ const { chromium } = require('playwright');
     console.log("Chargement de la page…");
 
     try {
-        // On attend longtemps, Cloudflare peut être lent
         await page.goto(url, { timeout: 120000, waitUntil: 'domcontentloaded' });
 
-        // On laisse Cloudflare respirer
-        await page.waitForTimeout(6000);
+        console.log("Attente de la fin du challenge Cloudflare…");
+
+        // On attend que Cloudflare disparaisse et que la vraie page apparaisse
+        await page.waitForSelector("table.listing, a[href*='/series/']", {
+            timeout: 60000
+        });
+
+        console.log("Cloudflare OK, page réelle chargée !");
+        console.log("URL réelle :", page.url());
 
         const html = await page.content();
         console.log(html);
