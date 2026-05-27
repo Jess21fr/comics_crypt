@@ -10,7 +10,7 @@ body {
     font-family: "Roboto", sans-serif;
     background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
     background-size: 200% 200%;
-    animation: lightPulse 8s ease-in-out infinite;
+    animation: lightPulse 25s ease-in-out infinite;
     color: #ddd;
     margin: 0;
     padding-top: 80px;   /* espace menu sticky */
