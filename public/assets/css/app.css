@@ -1,94 +1,55 @@
 /* ============================================================
-   THEME SOMBRE — BACK-OFFICE COMICSCYPT
-   Style inspiré Laravel Nova / Horizon
+   GOOGLE FONTS
    ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Jolly+Lodger&family=Roboto:wght@300;400;500&display=swap');
 
+/* ============================================================
+   GLOBAL
+   ============================================================ */
 body {
-    background: #111;
+    font-family: "Roboto", sans-serif;
+    background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+    background-size: 200% 200%;
+    animation: lightPulse 8s ease-in-out infinite;
     color: #ddd;
-    font-family: "Inter", sans-serif;
+    margin: 0;
+    padding-top: 80px;   /* espace menu sticky */
+    padding-bottom: 60px; /* espace footer sticky */
 }
 
-/* NAVBAR */
-.navbar-dark {
-    background: #1a1a1a !important;
-    border-bottom: 1px solid #333;
+/* Animation du fond */
+@keyframes lightPulse {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
-/* CONTENEUR PRINCIPAL */
-.page-container {
-    padding: 20px;
+/* Titres */
+h1, h2, h3, h4 {
+    font-family: "Jolly Lodger", cursive;
+    letter-spacing: 1px;
 }
 
-/* LANDING PAGE */
-.landing-wrapper {
-    position: relative;
+/* ============================================================
+   NAVBAR (STICKY)
+   ============================================================ */
+.navbar {
+    position: fixed;
+    top: 0;
     width: 100%;
-    height: calc(100vh - 120px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    background: #000;
+    z-index: 1000;
+    background: #111 !important;
+    border-bottom: 1px solid #222;
 }
 
-.landing-wrapper::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: url('../img/comics_crypt_logo.png') center center no-repeat;
-    background-size: fit;
-    opacity: 0.15;
-    filter: drop-shadow(0 0 10px #000);
+/* Titres principaux du menu */
+.menu-title {
+    font-family: "Jolly Lodger", cursive !important;
+    font-size: 1.4rem;
+    letter-spacing: 1px;
 }
 
-.landing-content {
-    position: relative;
-    z-index: 2;
-    text-align: center;
-    color: #fff;
-}
-
-.landing-content h1 {
-    font-size: 3rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-shadow: 0 0 10px #000;
-}
-
-/* BLOCS (façon Laravel Nova) */
-.card-dark {
-    background: #1c1c1c;
-    border: 1px solid #2a2a2a;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 25px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.35);
-}
-
-.card-dark h2,
-.card-dark h3 {
-    color: #fff;
-    margin-bottom: 15px;
-}
-
-.card-dark p {
-    color: #bbb;
-}
-
-/* BOUTONS */
-.btn-dark {
-    background: #222;
-    border: 1px solid #444;
-    color: #eee;
-}
-
-.btn-dark:hover {
-    background: #333;
-    color: #fff;
-}
-
-/* DROPDOWN MULTI-NIVEAUX */
+/* Sous-menus Bootstrap 5 */
 .dropdown-submenu {
     position: relative;
 }
@@ -100,54 +61,61 @@ body {
     margin-right: .1rem;
 }
 
-
-/* TABLES */
-.table-dark {
-    background: #1b1b1b;
-    color: #ddd;
-}
-
-.table-dark thead {
-    background: #222;
-    color: #fff;
-}
-
-.table-dark tbody tr:hover {
-    background: #2a2a2a;
-}
-
-/* FORMULAIRES */
-.form-control,
-.form-select {
-    background: #1b1b1b;
-    border: 1px solid #333;
-    color: #ddd;
-}
-
-.form-control:focus,
-.form-select:focus {
-    background: #222;
-    border-color: #555;
-    color: #fff;
-}
-
-/* ALERTES */
-.alert-dark {
-    background: #1b1b1b;
-    border: 1px solid #333;
-    color: #ddd;
-}
-
-/* LIENS */
-a {
-    color: #4da3ff;
-}
-
-a:hover {
-    color: #82c0ff;
-}
-
-/* FOOTER */
-.footer-dark {
+/* ============================================================
+   FOOTER (STICKY)
+   ============================================================ */
+footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: #111;
     color: #666;
+    padding: 10px 0;
+    text-align: center;
+    z-index: 1000;
+}
+
+/* ============================================================
+   PAGE CONTAINER
+   ============================================================ */
+.page-container {
+    background: transparent !important;
+    padding: 20px;
+}
+
+/* ============================================================
+   LANDING PAGE
+   ============================================================ */
+.landing-wrapper {
+    position: relative;
+    width: 100%;
+    height: 60vh; /* demandé : 50–60% */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.landing-wrapper::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: url('/comics_crypt/public/assets/img/comics_crypt_logo.png') center center no-repeat;
+    background-size: contain; /* ENTIER, CENTRÉ, NON COUPÉ */
+    opacity: 0.25;
+    filter: drop-shadow(0 0 10px #000);
+}
+
+.landing-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: #fff;
+}
+
+.landing-content h1 {
+    font-size: 3.2rem;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px #000;
 }
