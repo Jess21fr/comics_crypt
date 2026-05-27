@@ -1,0 +1,153 @@
+/* ============================================================
+   THEME SOMBRE — BACK-OFFICE COMICSCYPT
+   Style inspiré Laravel Nova / Horizon
+   ============================================================ */
+
+body {
+    background: #111;
+    color: #ddd;
+    font-family: "Inter", sans-serif;
+}
+
+/* NAVBAR */
+.navbar-dark {
+    background: #1a1a1a !important;
+    border-bottom: 1px solid #333;
+}
+
+/* CONTENEUR PRINCIPAL */
+.page-container {
+    padding: 20px;
+}
+
+/* LANDING PAGE */
+.landing-wrapper {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 120px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background: #000;
+}
+
+.landing-wrapper::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: url('../img/comics_crypt_logo.png') center center no-repeat;
+    background-size: fit;
+    opacity: 0.15;
+    filter: drop-shadow(0 0 10px #000);
+}
+
+.landing-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: #fff;
+}
+
+.landing-content h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px #000;
+}
+
+/* BLOCS (façon Laravel Nova) */
+.card-dark {
+    background: #1c1c1c;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.35);
+}
+
+.card-dark h2,
+.card-dark h3 {
+    color: #fff;
+    margin-bottom: 15px;
+}
+
+.card-dark p {
+    color: #bbb;
+}
+
+/* BOUTONS */
+.btn-dark {
+    background: #222;
+    border: 1px solid #444;
+    color: #eee;
+}
+
+.btn-dark:hover {
+    background: #333;
+    color: #fff;
+}
+
+/* DROPDOWN MULTI-NIVEAUX */
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-submenu > .dropdown-menu {
+    top: 0;
+    left: 100%;
+    margin-left: .1rem;
+    margin-right: .1rem;
+}
+
+
+/* TABLES */
+.table-dark {
+    background: #1b1b1b;
+    color: #ddd;
+}
+
+.table-dark thead {
+    background: #222;
+    color: #fff;
+}
+
+.table-dark tbody tr:hover {
+    background: #2a2a2a;
+}
+
+/* FORMULAIRES */
+.form-control,
+.form-select {
+    background: #1b1b1b;
+    border: 1px solid #333;
+    color: #ddd;
+}
+
+.form-control:focus,
+.form-select:focus {
+    background: #222;
+    border-color: #555;
+    color: #fff;
+}
+
+/* ALERTES */
+.alert-dark {
+    background: #1b1b1b;
+    border: 1px solid #333;
+    color: #ddd;
+}
+
+/* LIENS */
+a {
+    color: #4da3ff;
+}
+
+a:hover {
+    color: #82c0ff;
+}
+
+/* FOOTER */
+.footer-dark {
+    color: #666;
+}
