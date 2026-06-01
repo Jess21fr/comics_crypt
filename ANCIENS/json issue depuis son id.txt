@@ -1,25 +1,28 @@
 json issue depuis son id :
+https://www.comics.org/api/issue/17888/?format=json
 https://www.comics.org/api/issue/1244835/?format=json
 
 html issue depuis son id :
 https://www.comics.org/issue/17212/
 https://www.comics.org/issue/17888/
 
-html issue depuis son id :
+
+html serie depuis son id :
 https://www.comics.org/series/896/
 
 
 liste d'issues depuis nom de la série, numéro et année :
+https://www.comics.org/api/series/name/Batman/issue/12/year/2000/?format=json
 
-https://www.comics.org/api/publisher/name/dc/series/name/Batman/issue/12/year/2000/?format=json
+liste d'issues depuis l'id de la série
+https://www.comics.org/api/series/1571/?format=json
 
 
 https://www.comics.org/search/advanced/process/?target=issue&method=icontains&issues=1&is_variant=False&order1=series&order2=date&pub_name=Marvel&country=us&series=Avengers&series_year_began=1963
 
-
-
-
 https://www.comics.org/search/advanced/process/?target=issue&method=icontains&isbn=979-10-268-2338-4&in_selected_collection=on&order1=series&order2=date&_export=json
+
+https://www.comics.org/search/advanced/process/?target=series&method=icontains&in_selected_collection=on&order1=series&order2=date&pub_name=marvel&country=us&series=avengers&series_year_began=1963&_export=db_json
 
 
 

@@ -8,26 +8,32 @@
    ============================================================ */
 body {
     font-family: "Roboto", sans-serif;
-    background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
-    background-size: 200% 200%;
-    animation: lightPulse 25s ease-in-out infinite;
+    background: #0d0d0d; /* fond fixe, sombre, rapide */
     color: #ddd;
     margin: 0;
     padding-top: 80px;   /* espace menu sticky */
     padding-bottom: 60px; /* espace footer sticky */
 }
 
-/* Animation du fond */
-@keyframes lightPulse {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
 /* Titres */
 h1, h2, h3, h4 {
     font-family: "Jolly Lodger", cursive;
     letter-spacing: 1px;
+}
+
+/* ============================================================
+   ANIMATION UNIQUEMENT SUR LA PAGE D'ACCUEIL
+   ============================================================ */
+.homepage-bg {
+    background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+    background-size: 200% 200%;
+    animation: lightPulse 25s ease-in-out infinite;
+}
+
+@keyframes lightPulse {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 /* ============================================================
