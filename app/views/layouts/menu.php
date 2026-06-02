@@ -21,6 +21,7 @@ $base = rtrim($config['base_url'], '/');
 
             <ul class="navbar-nav me-auto">
 
+                <!-- GESTION -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle menu-title" href="#" data-bs-toggle="dropdown">
                         <i class="fa-solid fa-gears"></i> Gestion
@@ -28,21 +29,48 @@ $base = rtrim($config['base_url'], '/');
 
                     <ul class="dropdown-menu dropdown-menu-dark">
 
+                        <!-- ÉDITEURS -->
                         <li class="dropdown-submenu">
                             <a class="dropdown-item dropdown-toggle" href="#">Éditeurs</a>
                             <ul class="dropdown-menu dropdown-menu-dark">
-                                <li>
-                                    <a class="dropdown-item"
-                                       href="<?= $base ?>/index.php?route=gestion_editeurs_importer">
-                                        Importer
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item"
-                                       href="<?= $base ?>/index.php?route=gestion_editeurs_gerer">
-                                        Gérer
-                                    </a>
-                                </li>
+                                <li><a class="dropdown-item" href="<?= $base ?>/index.php?route=gestion_editeurs_importer">Importer</a></li>
+                                <li><a class="dropdown-item" href="<?= $base ?>/index.php?route=gestion_editeurs_gerer">Gérer</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- SÉRIES -->
+                        <li class="dropdown-submenu">
+                            <a class="dropdown-item dropdown-toggle" href="#">Séries</a>
+                            <ul class="dropdown-menu dropdown-menu-dark">
+                                <li><a class="dropdown-item" href="<?= $base ?>/index.php?route=gestion_series_importer">Importer</a></li>
+                                <li><a class="dropdown-item" href="<?= $base ?>/index.php?route=gestion_series_gerer">Gérer</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- GAMMES -->
+                        <li class="dropdown-submenu">
+                            <a class="dropdown-item dropdown-toggle" href="#">Gammes</a>
+                            <ul class="dropdown-menu dropdown-menu-dark">
+                                <li><a class="dropdown-item" href="<?= $base ?>/index.php?route=gestion_gammes_importer">Importer</a></li>
+                                <li><a class="dropdown-item" href="<?= $base ?>/index.php?route=gestion_gammes_gerer">Gérer</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- UNIVERS -->
+                        <li class="dropdown-submenu">
+                            <a class="dropdown-item dropdown-toggle" href="#">Univers</a>
+                            <ul class="dropdown-menu dropdown-menu-dark">
+                                <li><a class="dropdown-item" href="<?= $base ?>/index.php?route=gestion_univers_creer">Créer</a></li>
+                                <li><a class="dropdown-item" href="<?= $base ?>/index.php?route=gestion_univers_affecter_series">Affecter des séries</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- ÉPISODES -->
+                        <li class="dropdown-submenu">
+                            <a class="dropdown-item dropdown-toggle" href="#">Épisodes</a>
+                            <ul class="dropdown-menu dropdown-menu-dark">
+                                <li><a class="dropdown-item" href="<?= $base ?>/index.php?route=gestion_episodes_importer">Importer</a></li>
+                                <li><a class="dropdown-item" href="<?= $base ?>/index.php?route=gestion_episodes_gerer">Gérer</a></li>
                             </ul>
                         </li>
 

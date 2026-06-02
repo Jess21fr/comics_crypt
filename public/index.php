@@ -7,33 +7,110 @@ $route = $_GET['route'] ?? 'home';
 
 switch ($route) {
 
-    // IMPORT ÉDITEURS
+    /* -----------------------------------------
+       GESTION > ÉDITEURS > IMPORTER
+    ----------------------------------------- */
     case 'gestion_editeurs_importer':
         require_once __DIR__ . '/../app/controllers/PublisherController.php';
         (new PublisherController())->importer();
         break;
 
-    // AJAX : ajout éditeur
     case 'gestion_editeurs_importer_add':
         require_once __DIR__ . '/../app/controllers/PublisherController.php';
         (new PublisherController())->ajaxAdd();
         break;
 
-    // AJAX : infos éditeur
     case 'gestion_editeurs_importer_info':
         require_once __DIR__ . '/../app/controllers/PublisherController.php';
         (new PublisherController())->ajaxInfo();
         break;
 
-    // ACCUEIL
+
+    /* -----------------------------------------
+       GESTION > ÉDITEURS > GÉRER
+    ----------------------------------------- */
+    case 'gestion_editeurs_gerer':
+        require_once __DIR__ . '/../app/controllers/PublisherController.php';
+        (new PublisherController())->gerer();
+        break;
+
+    case 'gestion_editeurs_toggle':
+        require_once __DIR__ . '/../app/controllers/PublisherController.php';
+        (new PublisherController())->toggle();
+        break;
+
+    case 'gestion_editeurs_edit':
+        require_once __DIR__ . '/../app/controllers/PublisherController.php';
+        (new PublisherController())->edit();
+        break;
+
+    case 'gestion_editeurs_update':
+        require_once __DIR__ . '/../app/controllers/PublisherController.php';
+        (new PublisherController())->update();
+        break;
+
+
+    /* -----------------------------------------
+       GESTION > SÉRIES (placeholders)
+    ----------------------------------------- */
+    case 'gestion_series_importer':
+        echo "<h1 class='text-light p-5'>Import Séries — en construction</h1>";
+        break;
+
+    case 'gestion_series_gerer':
+        echo "<h1 class='text-light p-5'>Gérer Séries — en construction</h1>";
+        break;
+
+
+    /* -----------------------------------------
+       GESTION > GAMMES (placeholders)
+    ----------------------------------------- */
+    case 'gestion_gammes_importer':
+        echo "<h1 class='text-light p-5'>Import Gammes — en construction</h1>";
+        break;
+
+    case 'gestion_gammes_gerer':
+        echo "<h1 class='text-light p-5'>Gérer Gammes — en construction</h1>";
+        break;
+
+
+    /* -----------------------------------------
+       GESTION > UNIVERS (placeholders)
+    ----------------------------------------- */
+    case 'gestion_univers_creer':
+        echo "<h1 class='text-light p-5'>Créer Univers — en construction</h1>";
+        break;
+
+    case 'gestion_univers_affecter_series':
+        echo "<h1 class='text-light p-5'>Affecter Séries — en construction</h1>";
+        break;
+
+
+    /* -----------------------------------------
+       GESTION > ÉPISODES (placeholders)
+    ----------------------------------------- */
+    case 'gestion_episodes_importer':
+        echo "<h1 class='text-light p-5'>Import Épisodes — en construction</h1>";
+        break;
+
+    case 'gestion_episodes_gerer':
+        echo "<h1 class='text-light p-5'>Gérer Épisodes — en construction</h1>";
+        break;
+
+
+    /* -----------------------------------------
+       PAGE D’ACCUEIL
+    ----------------------------------------- */
     default:
         require __DIR__ . '/../app/views/layouts/header.php';
         require __DIR__ . '/../app/views/layouts/menu.php';
         ?>
-        <div class="landing-wrapper">
-            <div class="landing-content">
-                <h1>COMICSCRYPT BACK‑OFFICE</h1>
-                <p>Bienvenue dans votre espace d’administration</p>
+        <div class="homepage-bg">
+            <div class="landing-wrapper">
+                <div class="landing-content">
+                    <h1>COMICSCRYPT BACK‑OFFICE</h1>
+                    <p>Bienvenue dans votre espace d’administration</p>
+                </div>
             </div>
         </div>
         <?php

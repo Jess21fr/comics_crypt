@@ -16,6 +16,20 @@ class Langue
         );
     }
 
+    public function getAll()
+    {
+        $stmt = $this->db->query("SELECT * FROM langue ORDER BY nom ASC");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getById($id)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM langue WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+
     public function getByComicsOrgId($id_comicsorg)
     {
         $stmt = $this->db->prepare("SELECT * FROM langue WHERE id_comicsorg = ?");

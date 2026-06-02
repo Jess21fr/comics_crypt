@@ -5,6 +5,9 @@ require_once __DIR__ . '/../models/Publisher.php';
 
 class PublisherController
 {
+    /**
+     * PAGE IMPORT : Gestion > Éditeurs > Importer
+     */
     public function importer()
     {
         $config = require __DIR__ . '/../Config/config.php';
@@ -25,6 +28,10 @@ class PublisherController
         require __DIR__ . '/../views/publishers/importer.php';
     }
 
+
+    /**
+     * AJAX : Ajouter un éditeur importé en BDD
+     */
     public function ajaxAdd()
     {
         header('Content-Type: application/json; charset=utf-8');
@@ -68,6 +75,10 @@ class PublisherController
         exit;
     }
 
+
+    /**
+     * AJAX : Afficher les infos d’un éditeur importé (modale)
+     */
     public function ajaxInfo()
     {
         $config = require __DIR__ . '/../Config/config.php';
@@ -141,6 +152,116 @@ class PublisherController
         </table>
         <?php
 
+        exit;
+    }
+    /**
+     * PAGE GESTION : Gestion > Éditeurs > Gérer
+     */
+    public function gerer()
+    {
+        $config = require __DIR__ . '/../Config/config.php';
+
+        $publisherModel = new Publisher();
+        $publishers = $publisherModel->getAll();
+
+        require __DIR__ . '/../views/publishers/gerer.php';
+    }
+
+
+    /**
+     * AJAX : Activer / Désactiver un éditeur
+     */
+    public function toggle()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+
+        $id = $_POST['id'] ?? null;
+
+        if (!$id) {
+            echo json_encode(['success' => false, 'message' => "ID manquant"]);
+            exit;
+        }
+
+        $model = new Publisher();
+
+        if (!$model->exists($id)) {
+            echo json_encode(['success' => false, 'message' => "Éditeur introuvable"]);
+            exit;
+        }
+
+        $newState = $model->toggleActif($id);
+
+        echo json_encode([
+            'success' => true,
+            'message' => $newState ? "Éditeur activé" : "Éditeur désactivé"
+        ]);
+        exit;
+    }
+
+
+    /**
+     * AJAX : Charger le formulaire d’édition (modale)
+     */
+    public function edit()
+    {
+        $config = require __DIR__ . '/../Config/config.php';
+
+        $id = $_GET['id'] ?? null;
+
+        if (!$id) {
+            echo "<p>ID manquant.</p>";
+            exit;
+        }
+
+        $model = new Publisher();
+        $langueModel = new Langue();
+
+        $publisher = $model->getById($id);
+
+        if (!$publisher) {
+            echo "<p>Éditeur introuvable.</p>";
+            exit;
+        }
+
+        $langues = $langueModel->getAll();
+
+        require __DIR__ . '/../views/publishers/edit_form.php';
+    }
+
+
+    /**
+     * AJAX : Mise à jour d’un éditeur
+     */
+    public function update()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+
+        $id = $_POST['id'] ?? null;
+
+        if (!$id) {
+            echo json_encode(['success' => false, 'message' => "ID manquant"]);
+            exit;
+        }
+
+        $data = [
+            'name'       => $_POST['name'] ?? '',
+            'country'    => $_POST['country'] ?? null,
+            'year_began' => $_POST['year_began'] ?? null,
+            'year_ended' => $_POST['year_ended'] ?? null,
+            'url'        => $_POST['url'] ?? null,
+            'notes'      => $_POST['notes'] ?? null,
+        ];
+
+        $model = new Publisher();
+
+        if (!$model->exists($id)) {
+            echo json_encode(['success' => false, 'message' => "Éditeur introuvable"]);
+            exit;
+        }
+
+        $model->update($id, $data);
+
+        echo json_encode(['success' => true, 'message' => "Éditeur mis à jour"]);
         exit;
     }
 }
