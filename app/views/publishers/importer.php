@@ -2,6 +2,10 @@
 $config = require __DIR__ . '/../../Config/config.php';
 require __DIR__ . '/../layouts/header.php';
 require __DIR__ . '/../layouts/menu.php';
+
+// Modèles
+require_once __DIR__ . '/../../models/Langue.php';
+$langueModel = new Langue();
 ?>
 
 <div class="container mt-5 pt-4">
@@ -21,32 +25,59 @@ require __DIR__ . '/../layouts/menu.php';
 
     <?php if (!empty($publishers)) : ?>
 
-        <table id="publisherTable" class="table table-dark table-striped table-bordered align-middle">
+        <table id="publishersTable" class="display table table-dark table-striped table-bordered align-middle">
             <thead>
                 <tr>
                     <th>Nom</th>
                     <th>Pays</th>
                     <th>Année</th>
-                    <th>Actions</th>
+                    <th class="text-center">Actions</th>
                 </tr>
             </thead>
 
             <tbody>
                 <?php foreach ($publishers as $p): ?>
+                    <?php
+                        $name    = $p['name']       ?? '';
+                        $country = $p['country']    ?? null;
+                        $year    = $p['year_began'] ?? '';
+                        $id      = $p['id']         ?? '';
+
+                        // Récup langue
+                        $langue = $langueModel->getByComicsOrgId($country);
+
+                        if ($langue) {
+                            if (!empty($langue['drapeau'])) {
+                                $labelPays = '<img src="' . $config['base_url'] . '/assets/img/flags/' . $langue['drapeau'] . '" 
+                                                alt="' . htmlspecialchars($langue['nom_court']) . '" 
+                                                style="width:15px;height:10px;">';
+                            } else {
+                                $labelPays = htmlspecialchars($langue['nom_court']);
+                            }
+                        } else {
+                            $labelPays = '-';
+                        }
+                    ?>
                     <tr>
-                        <td><?= htmlspecialchars($p['name']) ?></td>
-                        <td><?= htmlspecialchars($p['country']) ?></td>
-                        <td><?= htmlspecialchars($p['year']) ?></td>
-                        <td>
-                            <button class="btn btn-info btn-sm more-info"
-                                    data-id="<?= htmlspecialchars($p['id']) ?>">
-                                + d'infos
+                        <td><?= htmlspecialchars($name) ?></td>
+                        <td><?= $labelPays ?></td>
+                        <td><?= $year !== '' ? htmlspecialchars($year) : '-' ?></td>
+                        <td class="text-center">
+
+                            <!-- Bouton infos -->
+                            <button class="btn btn-sm btn-outline-info more-info"
+                                    data-id="<?= htmlspecialchars($id) ?>"
+                                    title="+ d'infos">
+                                <i class="fa-solid fa-circle-info"></i>
                             </button>
 
-                            <button class="btn btn-success btn-sm add-publisher"
-                                    data-id="<?= htmlspecialchars($p['id']) ?>">
-                                Ajouter
+                            <!-- Bouton ajouter -->
+                            <button class="btn btn-sm btn-outline-success add-publisher"
+                                    data-id="<?= htmlspecialchars($id) ?>"
+                                    title="Ajouter">
+                                <i class="fa-solid fa-plus"></i>
                             </button>
+
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -56,7 +87,6 @@ require __DIR__ . '/../layouts/menu.php';
     <?php endif; ?>
 
 </div>
-
 <div class="modal fade" id="infoModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content bg-dark text-light">
@@ -72,34 +102,45 @@ require __DIR__ . '/../layouts/menu.php';
 </div>
 
 <script>
-$(document).ready(function() {
+$(function() {
 
-    $('#publisherTable').DataTable({
+    // Activation DataTables
+    $('#publishersTable').DataTable({
         pageLength: 25,
-        order: [[0, 'asc']]
+        order: [[0, 'asc']],
+        language: {
+            url: "https://cdn.datatables.net/plug-ins/1.13.8/i18n/fr-FR.json"
+        }
     });
 
+    // Bouton + d'infos
     $('.more-info').on('click', function() {
         let id = $(this).data('id');
 
         $('#infoModalBody').html("Chargement...");
 
-        $.get("<?= $config['base_url'] ?>/index.php?route=gestion_editeurs_importer_info&id=" + id,
+        $.get("<?= $config['base_url'] ?>/index.php?route=gestion_editeurs_importer_info&id=" + encodeURIComponent(id),
             function(data) {
                 $('#infoModalBody').html(data);
-                let modal = new bootstrap.Modal(document.getElementById('infoModal'));
-                modal.show();
+                new bootstrap.Modal(document.getElementById('infoModal')).show();
             }
         );
     });
 
+    // Bouton Ajouter
     $('.add-publisher').on('click', function() {
         let id = $(this).data('id');
 
         $.post("<?= $config['base_url'] ?>/index.php?route=gestion_editeurs_importer_add",
             { id: id },
             function(response) {
-                alert(response.message);
+
+                if (response.success) {
+                    alert("Éditeur ajouté !");
+                } else {
+                    alert(response.message);
+                }
+
             },
             "json"
         );

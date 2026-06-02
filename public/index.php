@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 $config = require __DIR__ . '/../app/Config/config.php';
 
 $route = $_GET['route'] ?? 'home';
@@ -28,9 +30,11 @@ switch ($route) {
         require __DIR__ . '/../app/views/layouts/header.php';
         require __DIR__ . '/../app/views/layouts/menu.php';
         ?>
-        <div class="container mt-5 pt-5 text-center text-light">
-            <h1>COMICSCRYPT BACK‑OFFICE</h1>
-            <p>Bienvenue dans votre espace d’administration</p>
+        <div class="landing-wrapper">
+            <div class="landing-content">
+                <h1>COMICSCRYPT BACK‑OFFICE</h1>
+                <p>Bienvenue dans votre espace d’administration</p>
+            </div>
         </div>
         <?php
         require __DIR__ . '/../app/views/layouts/footer.php';

@@ -1,8 +1,5 @@
-</div> <!-- /page-container -->
-
-<footer class="footer-dark text-center mt-5 mb-3">
-    <small>© <?= date("Y") ?> — Back‑Office ComicsCrypt</small>
+<footer class="mt-5 py-4 text-center text-secondary">
+    <small>ComicsCrypt Back‑Office</small>
 </footer>
-
 </body>
 </html>

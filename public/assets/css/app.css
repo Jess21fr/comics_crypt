@@ -95,7 +95,7 @@ footer {
 .landing-wrapper {
     position: relative;
     width: 100%;
-    height: 60vh; /* demandé : 50–60% */
+    height: 60vh;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -106,8 +106,8 @@ footer {
     content: "";
     position: absolute;
     inset: 0;
-    background: url('/comics_crypt/public/assets/img/comics_crypt_logo.png') center center no-repeat;
-    background-size: contain; /* ENTIER, CENTRÉ, NON COUPÉ */
+    background: url('../img/comics_crypt_logo.png') center center no-repeat;
+    background-size: contain;
     opacity: 0.25;
     filter: drop-shadow(0 0 10px #000);
 }
@@ -119,9 +119,3 @@ footer {
     color: #fff;
 }
 
-.landing-content h1 {
-    font-size: 3.2rem;
-    font-weight: 400;
-    letter-spacing: 2px;
-    text-shadow: 0 0 10px #000;
-}

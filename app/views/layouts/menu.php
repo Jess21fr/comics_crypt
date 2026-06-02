@@ -54,3 +54,24 @@ $base = rtrim($config['base_url'], '/');
         </div>
     </div>
 </nav>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll('.dropdown-submenu > a').forEach(function(element){
+        element.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            let submenu = this.nextElementSibling;
+
+            this.closest('.dropdown-menu').querySelectorAll('.dropdown-menu').forEach(function(menu){
+                if(menu !== submenu){
+                    menu.classList.remove('show');
+                }
+            });
+
+            submenu.classList.toggle('show');
+        });
+    });
+});
+</script>
