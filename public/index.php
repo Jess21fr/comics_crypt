@@ -49,16 +49,27 @@ switch ($route) {
         (new PublisherController())->update();
         break;
 
-
     /* -----------------------------------------
-       GESTION > SÉRIES (placeholders)
+       GESTION > SÉRIES
     ----------------------------------------- */
     case 'gestion_series_importer':
-        echo "<h1 class='text-light p-5'>Import Séries — en construction</h1>";
+        require_once __DIR__ . '/../app/controllers/SeriesController.php';
+        (new SeriesController())->importer();
         break;
 
-    case 'gestion_series_gerer':
-        echo "<h1 class='text-light p-5'>Gérer Séries — en construction</h1>";
+    case 'gestion_series_preview':
+        require_once __DIR__ . '/../app/controllers/SeriesController.php';
+        (new SeriesController())->preview();
+        break;
+
+    case 'gestion_series_ajax_add':
+        require_once __DIR__ . '/../app/controllers/SeriesController.php';
+        (new SeriesController())->ajaxAdd();
+        break;
+
+    case 'gestion_series_ajax_info':
+        require_once __DIR__ . '/../app/controllers/SeriesController.php';
+        (new SeriesController())->ajaxInfo();
         break;
 
 

@@ -42,8 +42,21 @@ $base = rtrim($config['base_url'], '/');
                         <li class="dropdown-submenu">
                             <a class="dropdown-item dropdown-toggle" href="#">Séries</a>
                             <ul class="dropdown-menu dropdown-menu-dark">
-                                <li><a class="dropdown-item" href="<?= $base ?>/index.php?route=gestion_series_importer">Importer</a></li>
-                                <li><a class="dropdown-item" href="<?= $base ?>/index.php?route=gestion_series_gerer">Gérer</a></li>
+
+                                <li>
+                                    <a class="dropdown-item"
+                                    href="<?= $base ?>/index.php?route=gestion_series_importer">
+                                        Importer
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item"
+                                    href="<?= $base ?>/index.php?route=gestion_series_gerer">
+                                        Gérer
+                                    </a>
+                                </li>
+
                             </ul>
                         </li>
 

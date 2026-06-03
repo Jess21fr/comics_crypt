@@ -120,4 +120,27 @@ class Publisher
             $p['url'] ?? null
         ]);
     }
+
+    /**
+     * Récupérer tous les éditeurs actifs
+     */
+    public function getActivePublishers()
+    {
+        $sql = "
+            SELECT 
+                p.id,
+                p.name,
+                p.country,
+                l.nom_court AS country_code
+            FROM publishers p
+            LEFT JOIN langue l 
+                ON l.id_comicsorg = p.country
+            WHERE p.actif = 1
+            ORDER BY p.name ASC
+        ";
+
+        $stmt = $this->db->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 }
