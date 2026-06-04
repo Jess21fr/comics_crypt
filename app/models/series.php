@@ -16,9 +16,10 @@ class Series
         );
     }
 
-    /**
-     * Vérifie si une série existe déjà via son ID comics.org
-     */
+    /* ============================================================
+       EXISTANTS
+       ============================================================ */
+
     public function existsBySeriesId($series_id)
     {
         $stmt = $this->db->prepare("SELECT id FROM series WHERE series_id = ?");
@@ -26,9 +27,6 @@ class Series
         return $stmt->fetch(PDO::FETCH_ASSOC) ? true : false;
     }
 
-    /**
-     * Récupère une série via son ID comics.org
-     */
     public function getBySeriesId($series_id)
     {
         $stmt = $this->db->prepare("SELECT * FROM series WHERE series_id = ?");
@@ -36,18 +34,12 @@ class Series
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Récupère toutes les séries
-     */
     public function getAll()
     {
         $stmt = $this->db->query("SELECT * FROM series ORDER BY name ASC");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Insère une série à partir du JSON Comics.org
-     */
     public function insertFromJson($s)
     {
         $stmt = $this->db->prepare("
@@ -94,5 +86,66 @@ class Series
             ':publisher'             => $s['publisher'] ?? null,
             ':external_link'         => $s['external_link'] ?? null
         ]);
+    }
+
+    /* ============================================================
+       AJOUTS POUR LA PAGE "GÉRER"
+       ============================================================ */
+
+    /**
+     * Liste complète avec nom de l'éditeur
+     */
+    public function getAllWithPublisher()
+    {
+        $sql = "
+            SELECT s.*, p.name AS publisher_name
+            FROM series s
+            LEFT JOIN publishers p ON p.id = s.publisher_id
+            ORDER BY s.name ASC
+        ";
+
+        return $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Récupère une série via son ID interne
+     */
+    public function getById($id)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM series WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Mise à jour d'une série
+     */
+    public function update($data)
+    {
+        $stmt = $this->db->prepare("
+            UPDATE series SET
+                name = :name,
+                year_began = :year_began,
+                year_ended = :year_ended,
+                notes = :notes
+            WHERE id = :id
+        ");
+
+        return $stmt->execute([
+            ':id'         => $data['id'],
+            ':name'       => $data['name'],
+            ':year_began' => $data['year_began'] ?: null,
+            ':year_ended' => $data['year_ended'] ?: null,
+            ':notes'      => $data['notes'] ?: null
+        ]);
+    }
+
+    /**
+     * Suppression d'une série
+     */
+    public function delete($id)
+    {
+        $stmt = $this->db->prepare("DELETE FROM series WHERE id = ?");
+        return $stmt->execute([$id]);
     }
 }

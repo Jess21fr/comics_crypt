@@ -2,9 +2,11 @@
 
 class SeriesController
 {
+    /**
+     * Page d'import des séries
+     */
     public function importer()
     {
-        // La vue fera les require_once comme pour éditeurs
         require_once __DIR__ . '/../models/Publisher.php';
         $publisherModel = new Publisher();
         $publishers = $publisherModel->getActivePublishers();
@@ -12,6 +14,9 @@ class SeriesController
         require __DIR__ . '/../views/series/importer.php';
     }
 
+    /**
+     * Prévisualisation JSON
+     */
     public function preview()
     {
         header('Content-Type: application/json');
@@ -35,6 +40,9 @@ class SeriesController
         ]);
     }
 
+    /**
+     * Import AJAX d'une série
+     */
     public function ajaxAdd()
     {
         header('Content-Type: application/json');
@@ -67,6 +75,9 @@ class SeriesController
         ]);
     }
 
+    /**
+     * Informations détaillées d'une série (pour la modale d'import)
+     */
     public function ajaxInfo()
     {
         header('Content-Type: application/json');
@@ -90,6 +101,97 @@ class SeriesController
         echo json_encode([
             'success' => true,
             'serie'   => $serie
+        ]);
+    }
+
+    /* ============================================================
+       GESTION DES SERIES (Gérer)
+       ============================================================ */
+
+    /**
+     * Page : Gestion > Séries > Gérer
+     */
+    public function gerer()
+    {
+        require_once __DIR__ . '/../models/Series.php';
+        $seriesModel = new Series();
+
+        // Récupération des séries avec nom éditeur
+        $series = $seriesModel->getAllWithPublisher();
+
+        require __DIR__ . '/../views/series/gerer.php';
+    }
+
+    /**
+     * Récupération d'une série pour la modale d'édition
+     */
+    public function edit()
+    {
+        if (empty($_GET['id'])) {
+            echo "ID manquant.";
+            return;
+        }
+
+        $id = intval($_GET['id']);
+
+        require_once __DIR__ . '/../models/Series.php';
+        $seriesModel = new Series();
+        $serie = $seriesModel->getById($id);
+
+        if (!$serie) {
+            echo "Série introuvable.";
+            return;
+        }
+
+        // Vue partielle : formulaire d'édition
+        require __DIR__ . '/../views/series/edit_form.php';
+    }
+
+    /**
+     * Mise à jour d'une série (AJAX)
+     */
+    public function update()
+    {
+        header('Content-Type: application/json');
+
+        if (empty($_POST['id'])) {
+            echo json_encode(['success' => false, 'message' => "ID manquant."]);
+            return;
+        }
+
+        require_once __DIR__ . '/../models/Series.php';
+        $seriesModel = new Series();
+
+        $ok = $seriesModel->update($_POST);
+
+        echo json_encode([
+            'success' => $ok,
+            'message' => $ok ? "Série mise à jour." : "Erreur lors de la mise à jour."
+        ]);
+    }
+
+    /**
+     * Suppression d'une série (AJAX)
+     */
+    public function delete()
+    {
+        header('Content-Type: application/json');
+
+        if (empty($_POST['id'])) {
+            echo json_encode(['success' => false, 'message' => "ID manquant."]);
+            return;
+        }
+
+        $id = intval($_POST['id']);
+
+        require_once __DIR__ . '/../models/Series.php';
+        $seriesModel = new Series();
+
+        $ok = $seriesModel->delete($id);
+
+        echo json_encode([
+            'success' => $ok,
+            'message' => $ok ? "Série supprimée." : "Erreur lors de la suppression."
         ]);
     }
 }

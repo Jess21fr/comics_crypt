@@ -47,11 +47,11 @@ switch ($route) {
     case 'gestion_editeurs_update':
         require_once __DIR__ . '/../app/controllers/PublisherController.php';
         (new PublisherController())->update();
-        break;
 
-    /* -----------------------------------------
-       GESTION > SÉRIES
-    ----------------------------------------- */
+    /* ============================
+    GESTION > SERIES
+    ============================ */
+
     case 'gestion_series_importer':
         require_once __DIR__ . '/../app/controllers/SeriesController.php';
         (new SeriesController())->importer();
@@ -72,6 +72,25 @@ switch ($route) {
         (new SeriesController())->ajaxInfo();
         break;
 
+    case 'gestion_series_gerer':
+        require_once __DIR__ . '/../app/controllers/SeriesController.php';
+        (new SeriesController())->gerer();
+        break;
+
+    case 'gestion_series_edit':
+        require_once __DIR__ . '/../app/controllers/SeriesController.php';
+        (new SeriesController())->edit();
+        break;
+
+    case 'gestion_series_update':
+        require_once __DIR__ . '/../app/controllers/SeriesController.php';
+        (new SeriesController())->update();
+        break;
+
+    case 'gestion_series_delete':
+        require_once __DIR__ . '/../app/controllers/SeriesController.php';
+        (new SeriesController())->delete();
+        break;
 
     /* -----------------------------------------
        GESTION > GAMMES (placeholders)
