@@ -47,9 +47,11 @@ switch ($route) {
     case 'gestion_editeurs_update':
         require_once __DIR__ . '/../app/controllers/PublisherController.php';
         (new PublisherController())->update();
+        break;
+
 
     /* ============================
-    GESTION > SERIES
+       GESTION > SERIES
     ============================ */
 
     case 'gestion_series_importer':
@@ -92,6 +94,7 @@ switch ($route) {
         (new SeriesController())->delete();
         break;
 
+
     /* -----------------------------------------
        GESTION > GAMMES (placeholders)
     ----------------------------------------- */
@@ -117,14 +120,64 @@ switch ($route) {
 
 
     /* -----------------------------------------
-       GESTION > ÉPISODES (placeholders)
+       GESTION > ÉPISODES (ISSUES)
     ----------------------------------------- */
-    case 'gestion_episodes_importer':
-        echo "<h1 class='text-light p-5'>Import Épisodes — en construction</h1>";
+
+    /* Importer les issues */
+    case 'gestion_issues_importer':
+        require_once __DIR__ . '/../app/controllers/IssuesController.php';
+        (new IssuesController())->importer();
         break;
 
-    case 'gestion_episodes_gerer':
-        echo "<h1 class='text-light p-5'>Gérer Épisodes — en construction</h1>";
+    case 'gestion_issues_preview':
+        require_once __DIR__ . '/../app/controllers/IssuesController.php';
+        (new IssuesController())->preview();
+        break;
+
+    case 'gestion_issues_add':
+        require_once __DIR__ . '/../app/controllers/IssuesController.php';
+        (new IssuesController())->ajaxAdd();
+        break;
+
+    case 'gestion_issues_info':
+        require_once __DIR__ . '/../app/controllers/IssuesController.php';
+        (new IssuesController())->ajaxInfo();
+        break;
+
+    /* Gérer les issues */
+    case 'gestion_issues_gerer':
+        require_once __DIR__ . '/../app/controllers/IssuesController.php';
+        (new IssuesController())->gerer();
+        break;
+
+    case 'gestion_issues_edit':
+        require_once __DIR__ . '/../app/controllers/IssuesController.php';
+        (new IssuesController())->edit();
+        break;
+
+    case 'gestion_issues_update':
+        require_once __DIR__ . '/../app/controllers/IssuesController.php';
+        (new IssuesController())->update();
+        break;
+
+    case 'gestion_issues_delete':
+        require_once __DIR__ . '/../app/controllers/IssuesController.php';
+        (new IssuesController())->delete();
+        break;
+
+
+    /* -----------------------------------------
+       GESTION > ÉPISODES > IMPORTER LES COVERS
+    ----------------------------------------- */
+
+    case 'gestion_issues_import_covers':
+        require_once __DIR__ . '/../app/controllers/IssuesController.php';
+        (new IssuesController())->importerCovers();
+        break;
+
+    case 'gestion_issues_add_cover':
+        require_once __DIR__ . '/../app/controllers/IssuesController.php';
+        (new IssuesController())->ajaxAddCover();
         break;
 
 

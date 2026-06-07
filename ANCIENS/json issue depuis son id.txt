@@ -2,15 +2,6 @@ json issue depuis son id :
 https://www.comics.org/api/issue/17888/?format=json
 https://www.comics.org/api/issue/1244835/?format=json
 
-html issue depuis son id :
-https://www.comics.org/issue/17212/
-https://www.comics.org/issue/17888/
-
-
-html serie depuis son id :
-https://www.comics.org/series/896/
-
-
 liste d'issues depuis nom de la série, numéro et année :
 https://www.comics.org/api/series/name/Batman/issue/12/year/2000/?format=json
 
@@ -25,4 +16,29 @@ https://www.comics.org/search/advanced/process/?target=issue&method=icontains&is
 https://www.comics.org/search/advanced/process/?target=series&method=icontains&in_selected_collection=on&order1=series&order2=date&pub_name=marvel&country=us&series=avengers&series_year_began=1963&_export=db_json
 
 
+COUVERTURES VIA API :
 
+Liste des épisodes :
+https://www.comics.org/api/series/name/The%20Infinity%20Gauntlet/?format=json
+
+https://www.comics.org/api/series/4245/?format=json
+
+https://www.comics.org/search/advanced/process/?target=cover&method=icontains&is_variant=False&in_selected_collection=on&order1=series&order2=date&pub_name=marvel&country=us&series=the+infinity+gauntlet&series_year_began=1991&issue_count=6&_export=db_json
+
+
+HTML
+
+html issue depuis son id :
+https://www.comics.org/issue/17212/
+https://www.comics.org/issue/17888/
+
+html serie depuis son id :
+https://www.comics.org/series/896/
+
+JSON SANS API
+
+Covers :
+https://www.comics.org/search/advanced/process/?target=cover&method=icontains&is_variant=False&in_selected_collection=on&order1=series&order2=date&pub_name=marvel&country=us&series=the+infinity+gauntlet&series_year_began=1991&issue_count=6&_export=db_json
+
+Détails issues :
+https://www.comics.org/search/advanced/process/?target=issue&method=icontains&is_variant=False&in_selected_collection=on&order1=series&order2=date&pub_name=marvel&country=us&series=avengers&series_year_began=1963&_export=db_json

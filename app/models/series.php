@@ -148,4 +148,20 @@ class Series
         $stmt = $this->db->prepare("DELETE FROM series WHERE id = ?");
         return $stmt->execute([$id]);
     }
+
+    public function getAllWithPublisherAndCountry()
+    {
+        $sql = "SELECT 
+                    s.*,
+                    p.name AS publisher_name,
+                    l.nom_court AS country_code
+                FROM series s
+                LEFT JOIN publishers p ON p.publisher_id = s.publisher
+                LEFT JOIN langue l ON l.id_comicsorg = p.country
+                ORDER BY s.name";
+
+        $stmt = $this->db->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 }

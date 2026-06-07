@@ -82,8 +82,29 @@ $base = rtrim($config['base_url'], '/');
                         <li class="dropdown-submenu">
                             <a class="dropdown-item dropdown-toggle" href="#">Épisodes</a>
                             <ul class="dropdown-menu dropdown-menu-dark">
-                                <li><a class="dropdown-item" href="<?= $base ?>/index.php?route=gestion_episodes_importer">Importer</a></li>
-                                <li><a class="dropdown-item" href="<?= $base ?>/index.php?route=gestion_episodes_gerer">Gérer</a></li>
+
+                                <li>
+                                    <a class="dropdown-item"
+                                       href="<?= $base ?>/index.php?route=gestion_issues_importer">
+                                        Importer
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item"
+                                       href="<?= $base ?>/index.php?route=gestion_issues_gerer">
+                                        Gérer
+                                    </a>
+                                </li>
+
+                                <!-- ⭐ NOUVELLE ENTRÉE : IMPORTER LES COVERS -->
+                                <li>
+                                    <a class="dropdown-item"
+                                       href="<?= $base ?>/index.php?route=gestion_issues_import_covers">
+                                        Importer les covers
+                                    </a>
+                                </li>
+
                             </ul>
                         </li>
 
