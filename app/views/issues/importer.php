@@ -76,7 +76,6 @@ require_once __DIR__ . '/../layouts/menu.php';
 
             <h4 class="text-info">Étape 3 — Coller le JSON des covers</h4>
 
-            <!-- ⭐ BOUTON JAUNE POUR OUVRIR L’URL JSON DES COVERS -->
             <button id="btn_open_covers_url" class="btn btn-warning mb-3 w-100" style="display:none;">
                 Ouvrir JSON Covers
             </button>
@@ -87,12 +86,18 @@ require_once __DIR__ . '/../layouts/menu.php';
             <button id="btn_preview_covers" class="btn btn-warning mt-3 w-100">
                 Prévisualiser les covers
             </button>
+
+            <!-- ICI S’AFFICHERA LA DATATABLE DES COVERS -->
+            <div id="covers_preview_block" class="mt-4"></div>
+
         </div>
     </div>
 
 </div>
 
 <script>
+console.log(">>> IMPORTER.PHP ACTIF <<<");
+
 document.addEventListener("DOMContentLoaded", function() {
 
     /* ============================
@@ -160,7 +165,6 @@ document.addEventListener("DOMContentLoaded", function() {
             let urlCovers = buildCoverJsonUrl(name, year, count, pub, country);
             window.open(urlCovers, "_blank");
 
-            /* ⭐ On stocke l’URL dans le bouton jaune */
             let btnCovers = document.getElementById('btn_open_covers_url');
             btnCovers.dataset.url = urlCovers;
             btnCovers.style.display = "block";
@@ -177,7 +181,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     /* ============================
-       PRÉVISUALISATION DES ISSUES (ÉTAPE 2)
+       PRÉVISUALISATION DES ISSUES
     ============================ */
     document.getElementById('btn_preview_issues').addEventListener('click', function () {
 
@@ -208,7 +212,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     /* ============================
-       PRÉVISUALISATION DES COVERS (ÉTAPE 3)
+       PRÉVISUALISATION DES COVERS
     ============================ */
     document.getElementById('btn_preview_covers').addEventListener('click', function () {
 
@@ -234,8 +238,74 @@ document.addEventListener("DOMContentLoaded", function() {
 
             console.log("Covers reçues :", data.covers);
 
-            // 👉 Ici on ajoutera la DataTable des covers
+            /* ============================
+               AFFICHAGE DATATABLE DES COVERS
+            ============================ */
+
+            let html = `
+                <table id="covers_table" class="table table-dark table-striped mt-3">
+                    <thead>
+                        <tr>
+                            <th>Cover ID</th>
+                            <th>Issue ID</th>
+                            <th>Image</th>
+                            <th>Importer</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            data.covers.forEach(c => {
+
+                let folder = Math.floor(c.id / 1000);
+                let url = `https://files1.comics.org/img/gcd/covers_by_id/${folder}/w200/${c.id}.jpg`;
+
+                html += `
+                    <tr>
+                        <td>${c.id}</td>
+                        <td>${c.issue}</td>
+                        <td><img src="${url}" height="120"></td>
+                        <td>
+                            <button class="btn btn-success btn-sm import-cover-btn"
+                                    data-cover='${JSON.stringify(c)}'>
+                                Importer
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table>`;
+
+            document.getElementById('covers_preview_block').innerHTML = html;
+
+            new DataTable('#covers_table', {
+                pageLength: 25,
+                language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json"
+                }
+            });
         });
+    });
+
+    /* ============================
+       IMPORT D’UNE COVER
+    ============================ */
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.import-cover-btn')) {
+
+            let c = JSON.parse(e.target.closest('.import-cover-btn').dataset.cover);
+
+            fetch("index.php?route=gestion_issues_add_cover", {
+                method: "POST",
+                headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                body: "cover=" + encodeURIComponent(JSON.stringify(c))
+            })
+            .then(r => r.json())
+            .then(res => {
+                alert(res.message);
+            });
+        }
     });
 
 });
