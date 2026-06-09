@@ -3,14 +3,14 @@
 class IssuesController
 {
     /* ============================
-       IMPORTER LES ISSUES (NOUVEAU)
+       IMPORTER LES ISSUES (ÉCRAN UNIQUE)
        ============================ */
     public function importer()
     {
         require_once __DIR__ . '/../models/Series.php';
         $seriesModel = new Series();
 
-        // 🔥 Nouvelle méthode indispensable pour la DataTable
+        // Liste des séries pour la DataTable
         $series = $seriesModel->getAllWithPublisherAndCountry();
 
         require __DIR__ . '/../views/issues/importer.php';
@@ -31,7 +31,7 @@ class IssuesController
         $json = trim($_POST['json']);
         $data = json_decode($json, true);
 
-        if (!$data) {
+        if ($data === null) {
             echo json_encode(['success' => false, 'message' => "JSON invalide."]);
             return;
         }
@@ -163,17 +163,35 @@ class IssuesController
         ]);
     }
 
-    /* ============================================================
-       IMPORTER LES COVERS (vue)
-       ============================================================ */
-    public function importerCovers()
+    /* ============================
+       PRÉVISUALISATION DES COVERS (ÉTAPE 3)
+       ============================ */
+    public function previewCovers()
     {
-        require __DIR__ . '/../views/issues/import_covers.php';
+        header('Content-Type: application/json');
+
+        if (empty($_POST['json'])) {
+            echo json_encode(['success' => false, 'message' => "JSON manquant."]);
+            return;
+        }
+
+        $json = trim($_POST['json']);
+        $data = json_decode($json, true);
+
+        if ($data === null) {
+            echo json_encode(['success' => false, 'message' => "JSON invalide."]);
+            return;
+        }
+
+        echo json_encode([
+            'success' => true,
+            'covers'  => $data
+        ]);
     }
 
-    /* ============================================================
+    /* ============================
        IMPORT AJAX D’UNE COVER
-       ============================================================ */
+       ============================ */
     public function ajaxAddCover()
     {
         header('Content-Type: application/json');

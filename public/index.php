@@ -123,22 +123,37 @@ switch ($route) {
        GESTION > ÉPISODES (ISSUES)
     ----------------------------------------- */
 
-    /* Importer les issues */
+    /* Importer les issues + covers (UN SEUL ÉCRAN) */
     case 'gestion_issues_importer':
         require_once __DIR__ . '/../app/controllers/IssuesController.php';
         (new IssuesController())->importer();
         break;
 
+    /* Preview issues */
     case 'gestion_issues_preview':
         require_once __DIR__ . '/../app/controllers/IssuesController.php';
         (new IssuesController())->preview();
         break;
 
+    /* Preview covers */
+    case 'gestion_covers_preview':
+        require_once __DIR__ . '/../app/controllers/IssuesController.php';
+        (new IssuesController())->previewCovers();
+        break;
+
+    /* Import AJAX issue */
     case 'gestion_issues_add':
         require_once __DIR__ . '/../app/controllers/IssuesController.php';
         (new IssuesController())->ajaxAdd();
         break;
 
+    /* Import AJAX cover */
+    case 'gestion_issues_add_cover':
+        require_once __DIR__ . '/../app/controllers/IssuesController.php';
+        (new IssuesController())->ajaxAddCover();
+        break;
+
+    /* Info issue */
     case 'gestion_issues_info':
         require_once __DIR__ . '/../app/controllers/IssuesController.php';
         (new IssuesController())->ajaxInfo();
@@ -163,21 +178,6 @@ switch ($route) {
     case 'gestion_issues_delete':
         require_once __DIR__ . '/../app/controllers/IssuesController.php';
         (new IssuesController())->delete();
-        break;
-
-
-    /* -----------------------------------------
-       GESTION > ÉPISODES > IMPORTER LES COVERS
-    ----------------------------------------- */
-
-    case 'gestion_issues_import_covers':
-        require_once __DIR__ . '/../app/controllers/IssuesController.php';
-        (new IssuesController())->importerCovers();
-        break;
-
-    case 'gestion_issues_add_cover':
-        require_once __DIR__ . '/../app/controllers/IssuesController.php';
-        (new IssuesController())->ajaxAddCover();
         break;
 
 

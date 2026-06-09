@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : ven. 05 juin 2026 à 01:07
+-- Généré le : mar. 09 juin 2026 à 07:18
 -- Version du serveur : 10.4.32-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -20,6 +20,63 @@ SET time_zone = "+00:00";
 --
 -- Base de données : `comics_crypt`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `issues`
+--
+
+CREATE TABLE `issues` (
+  `id` int(11) NOT NULL,
+  `issue_id` int(11) NOT NULL,
+  `series_id` int(11) NOT NULL,
+  `number` varchar(50) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `no_title` tinyint(1) DEFAULT 0,
+  `volume` varchar(50) DEFAULT NULL,
+  `no_volume` tinyint(1) DEFAULT 0,
+  `volume_not_printed` tinyint(1) DEFAULT 0,
+  `display_volume_with_number` tinyint(1) DEFAULT 0,
+  `isbn` varchar(100) DEFAULT NULL,
+  `no_isbn` tinyint(1) DEFAULT 0,
+  `valid_isbn` varchar(100) DEFAULT NULL,
+  `variant_of` int(11) DEFAULT NULL,
+  `variant_name` varchar(255) DEFAULT NULL,
+  `variant_cover_status` int(11) DEFAULT NULL,
+  `barcode` varchar(100) DEFAULT NULL,
+  `no_barcode` tinyint(1) DEFAULT 0,
+  `rating` varchar(255) DEFAULT NULL,
+  `no_rating` tinyint(1) DEFAULT 0,
+  `publication_date` varchar(50) DEFAULT NULL,
+  `key_date` varchar(20) DEFAULT NULL,
+  `on_sale_date` varchar(20) DEFAULT NULL,
+  `on_sale_date_uncertain` tinyint(1) DEFAULT 0,
+  `sort_code` int(11) DEFAULT NULL,
+  `indicia_frequency` varchar(255) DEFAULT NULL,
+  `no_indicia_frequency` tinyint(1) DEFAULT 0,
+  `price` varchar(255) DEFAULT NULL,
+  `page_count` varchar(20) DEFAULT NULL,
+  `page_count_uncertain` tinyint(1) DEFAULT 0,
+  `editing` text DEFAULT NULL,
+  `no_editing` tinyint(1) DEFAULT 0,
+  `notes` text DEFAULT NULL,
+  `indicia_publisher` int(11) DEFAULT NULL,
+  `indicia_pub_not_printed` tinyint(1) DEFAULT 0,
+  `brand` int(11) DEFAULT NULL,
+  `no_brand` tinyint(1) DEFAULT 0,
+  `indicia_printer_not_printed` tinyint(1) DEFAULT 0,
+  `indicia_printer_sourced_by` varchar(255) DEFAULT NULL,
+  `is_indexed` int(11) DEFAULT NULL,
+  `external_link` varchar(255) DEFAULT NULL,
+  `brand_emblem` int(11) DEFAULT NULL,
+  `indicia_printer` int(11) DEFAULT NULL,
+  `image_resources` int(11) DEFAULT NULL,
+  `cover_id` int(11) DEFAULT NULL,
+  `cover_url` varchar(255) DEFAULT NULL,
+  `cover_local` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -141,6 +198,12 @@ CREATE TABLE `univers` (
 --
 
 --
+-- Index pour la table `issues`
+--
+ALTER TABLE `issues`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Index pour la table `langue`
 --
 ALTER TABLE `langue`
@@ -170,6 +233,12 @@ ALTER TABLE `univers`
 --
 -- AUTO_INCREMENT pour les tables déchargées
 --
+
+--
+-- AUTO_INCREMENT pour la table `issues`
+--
+ALTER TABLE `issues`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT pour la table `langue`

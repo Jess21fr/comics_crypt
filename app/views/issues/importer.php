@@ -73,7 +73,13 @@ require_once __DIR__ . '/../layouts/menu.php';
     ============================= -->
     <div id="step3" class="card bg-dark text-white mb-4" style="display:none;">
         <div class="card-body">
+
             <h4 class="text-info">Étape 3 — Coller le JSON des covers</h4>
+
+            <!-- ⭐ BOUTON JAUNE POUR OUVRIR L’URL JSON DES COVERS -->
+            <button id="btn_open_covers_url" class="btn btn-warning mb-3 w-100" style="display:none;">
+                Ouvrir JSON Covers
+            </button>
 
             <textarea id="json_covers" class="form-control bg-black text-white" rows="10"
                       placeholder="Collez ici le JSON des covers Comics.org"></textarea>
@@ -100,6 +106,26 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     /* ============================
+       FONCTION URL JSON COVERS
+    ============================ */
+    function buildCoverJsonUrl(name, year, count, pub, country) {
+
+        return "https://www.comics.org/search/advanced/process/?" +
+            "target=cover" +
+            "&method=icontains" +
+            "&is_variant=False" +
+            "&in_selected_collection=on" +
+            "&order1=series" +
+            "&order2=date" +
+            "&pub_name=" + encodeURIComponent(pub) +
+            "&country=" + encodeURIComponent(country) +
+            "&series=" + encodeURIComponent(name) +
+            "&series_year_began=" + year +
+            "&issue_count=" + count +
+            "&_export=db_json";
+    }
+
+    /* ============================
        BOUTON IMPORTER (ÉTAPE 1)
     ============================ */
     document.addEventListener('click', function(e) {
@@ -113,7 +139,8 @@ document.addEventListener("DOMContentLoaded", function() {
             let pub = btn.dataset.pub;
             let country = btn.dataset.country;
 
-            let url = "https://www.comics.org/search/advanced/process/?" +
+            /* URL JSON ISSUES */
+            let urlIssues = "https://www.comics.org/search/advanced/process/?" +
                 "target=issue" +
                 "&method=icontains" +
                 "&is_variant=False" +
@@ -127,10 +154,26 @@ document.addEventListener("DOMContentLoaded", function() {
                 "&issue_count=" + count +
                 "&_export=db_json";
 
-            window.open(url, "_blank");
+            window.open(urlIssues, "_blank");
+
+            /* URL JSON COVERS */
+            let urlCovers = buildCoverJsonUrl(name, year, count, pub, country);
+            window.open(urlCovers, "_blank");
+
+            /* ⭐ On stocke l’URL dans le bouton jaune */
+            let btnCovers = document.getElementById('btn_open_covers_url');
+            btnCovers.dataset.url = urlCovers;
+            btnCovers.style.display = "block";
 
             document.getElementById('step2').style.display = "block";
         }
+    });
+
+    /* ============================
+       BOUTON JAUNE : OUVRIR JSON COVERS
+    ============================ */
+    document.getElementById('btn_open_covers_url').addEventListener('click', function () {
+        window.open(this.dataset.url, "_blank");
     });
 
     /* ============================
@@ -145,7 +188,7 @@ document.addEventListener("DOMContentLoaded", function() {
             return;
         }
 
-        fetch("index.php?controller=issues&action=preview", {
+        fetch("index.php?route=gestion_issues_preview", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: "json=" + encodeURIComponent(json)
@@ -160,8 +203,38 @@ document.addEventListener("DOMContentLoaded", function() {
 
             console.log("Issues reçues :", data.issues);
 
-            // 👉 Afficher l’étape 3
             document.getElementById('step3').style.display = "block";
+        });
+    });
+
+    /* ============================
+       PRÉVISUALISATION DES COVERS (ÉTAPE 3)
+    ============================ */
+    document.getElementById('btn_preview_covers').addEventListener('click', function () {
+
+        let json = document.getElementById('json_covers').value.trim();
+
+        if (!json) {
+            alert("Veuillez coller le JSON des covers.");
+            return;
+        }
+
+        fetch("index.php?route=gestion_covers_preview", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: "json=" + encodeURIComponent(json)
+        })
+        .then(r => r.json())
+        .then(data => {
+
+            if (!data.success) {
+                alert(data.message);
+                return;
+            }
+
+            console.log("Covers reçues :", data.covers);
+
+            // 👉 Ici on ajoutera la DataTable des covers
         });
     });
 
