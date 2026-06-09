@@ -7,9 +7,10 @@ $route = $_GET['route'] ?? 'home';
 
 switch ($route) {
 
-    /* -----------------------------------------
-       GESTION > ÉDITEURS > IMPORTER
-    ----------------------------------------- */
+    /* ============================================================
+       GESTION > ÉDITEURS
+    ============================================================ */
+
     case 'gestion_editeurs_importer':
         require_once __DIR__ . '/../app/controllers/PublisherController.php';
         (new PublisherController())->importer();
@@ -25,10 +26,6 @@ switch ($route) {
         (new PublisherController())->ajaxInfo();
         break;
 
-
-    /* -----------------------------------------
-       GESTION > ÉDITEURS > GÉRER
-    ----------------------------------------- */
     case 'gestion_editeurs_gerer':
         require_once __DIR__ . '/../app/controllers/PublisherController.php';
         (new PublisherController())->gerer();
@@ -50,9 +47,9 @@ switch ($route) {
         break;
 
 
-    /* ============================
+    /* ============================================================
        GESTION > SERIES
-    ============================ */
+    ============================================================ */
 
     case 'gestion_series_importer':
         require_once __DIR__ . '/../app/controllers/SeriesController.php';
@@ -95,9 +92,10 @@ switch ($route) {
         break;
 
 
-    /* -----------------------------------------
+    /* ============================================================
        GESTION > GAMMES (placeholders)
-    ----------------------------------------- */
+    ============================================================ */
+
     case 'gestion_gammes_importer':
         echo "<h1 class='text-light p-5'>Import Gammes — en construction</h1>";
         break;
@@ -107,9 +105,10 @@ switch ($route) {
         break;
 
 
-    /* -----------------------------------------
+    /* ============================================================
        GESTION > UNIVERS (placeholders)
-    ----------------------------------------- */
+    ============================================================ */
+
     case 'gestion_univers_creer':
         echo "<h1 class='text-light p-5'>Créer Univers — en construction</h1>";
         break;
@@ -119,11 +118,11 @@ switch ($route) {
         break;
 
 
-    /* -----------------------------------------
+    /* ============================================================
        GESTION > ÉPISODES (ISSUES)
-    ----------------------------------------- */
+    ============================================================ */
 
-    /* Importer les issues + covers (UN SEUL ÉCRAN) */
+    /* Importer issues + covers (UN SEUL ÉCRAN) */
     case 'gestion_issues_importer':
         require_once __DIR__ . '/../app/controllers/IssuesController.php';
         (new IssuesController())->importer();
@@ -147,7 +146,7 @@ switch ($route) {
         (new IssuesController())->ajaxAdd();
         break;
 
-    /* Import AJAX cover */
+    /* Import AJAX cover (GOOGLE IMAGES) */
     case 'gestion_issues_add_cover':
         require_once __DIR__ . '/../app/controllers/IssuesController.php';
         (new IssuesController())->ajaxAddCover();
@@ -159,7 +158,7 @@ switch ($route) {
         (new IssuesController())->ajaxInfo();
         break;
 
-    /* Gérer les issues */
+    /* Gérer issues */
     case 'gestion_issues_gerer':
         require_once __DIR__ . '/../app/controllers/IssuesController.php';
         (new IssuesController())->gerer();
@@ -181,9 +180,10 @@ switch ($route) {
         break;
 
 
-    /* -----------------------------------------
+    /* ============================================================
        PAGE D’ACCUEIL
-    ----------------------------------------- */
+    ============================================================ */
+
     default:
         require __DIR__ . '/../app/views/layouts/header.php';
         require __DIR__ . '/../app/views/layouts/menu.php';
