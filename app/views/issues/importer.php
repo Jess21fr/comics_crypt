@@ -58,7 +58,7 @@ require_once __DIR__ . '/../layouts/menu.php';
         <div class="card-body">
             <h4 class="text-info">Étape 2 — Coller le JSON des issues</h4>
             <textarea id="json_issues" class="form-control bg-black text-white" rows="10"
-                      placeholder="Collez ici le JSON des issues Comics.org"></textarea>
+                      placeholder="Collez ici le JSON des issues Comics.org (_export=db_json)"></textarea>
             <button id="btn_preview_issues" class="btn btn-success mt-3 w-100">
                 Prévisualiser les issues
             </button>
@@ -66,229 +66,13 @@ require_once __DIR__ . '/../layouts/menu.php';
     </div>
 
     <!-- ============================
-         ÉTAPE 3 : COLLER JSON COVERS
+         ÉTAPE 3 : TABLEAU D'IMPORT
     ============================ -->
     <div id="step3" class="card bg-dark text-white mb-4" style="display:none;">
         <div class="card-body">
-            <h4 class="text-info">Étape 3 — Coller le JSON des covers</h4>
+            <h4 class="text-info">Étape 3 — Prévisualiser et importer les issues</h4>
 
-            <button id="btn_open_covers_url" class="btn btn-warning mb-3 w-100" style="display:none;">
-                Ouvrir JSON Covers
-            </button>
-
-            <textarea id="json_covers" class="form-control bg-black text-white" rows="10"
-                      placeholder="Collez ici le JSON des covers Comics.org"></textarea>
-
-            <button id="btn_preview_covers" class="btn btn-warning mt-3 w-100">
-                Prévisualiser les covers
-            </button>
-
-            <div id="covers_preview_block" class="mt-4"></div>
-        </div>
-    </div>
-
-</div>
-
-<script>
-console.log(">>> IMPORTER.PHP ACTIF <<<");
-
-let dataIssues = [];        // stockage des issues
-let currentSerieName = "";  // nom de la série sélectionnée
-
-document.addEventListener("DOMContentLoaded", function() {
-
-    // ============================
-    // DataTable des séries
-    // ============================
-    new DataTable('#series_table', {
-        pageLength: 25,
-        language: {
-            url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json"
-        }
-    });
-
-    // ============================
-    // Bouton IMPORTER (Étape 1)
-    // ============================
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.import-btn')) return;
-
-        let btn = e.target.closest('.import-btn');
-
-        currentSerieName = btn.dataset.name;
-
-        let name    = btn.dataset.name;
-        let year    = btn.dataset.year;
-        let count   = btn.dataset.count;
-        let pub     = btn.dataset.pub;
-        let country = btn.dataset.country;
-
-        // URL JSON ISSUES (comics.org, ouvert dans un nouvel onglet)
-        let urlIssues = "https://www.comics.org/search/advanced/process/?" +
-            "target=issue" +
-            "&method=icontains" +
-            "&is_variant=False" +
-            "&in_selected_collection=on" +
-            "&order1=series" +
-            "&order2=date" +
-            "&pub_name=" + encodeURIComponent(pub) +
-            "&country=" + encodeURIComponent(country) +
-            "&series=" + encodeURIComponent(name) +
-            "&series_year_began=" + year +
-            "&issue_count=" + count +
-            "&_export=db_json";
-
-        window.open(urlIssues, "_blank");
-
-        // URL JSON COVERS (comics.org, ouvert dans un nouvel onglet)
-        let urlCovers = "https://www.comics.org/search/advanced/process/?" +
-            "target=cover" +
-            "&method=icontains" +
-            "&is_variant=False" +
-            "&in_selected_collection=on" +
-            "&order1=series" +
-            "&order2=date" +
-            "&pub_name=" + encodeURIComponent(pub) +
-            "&country=" + encodeURIComponent(country) +
-            "&series=" + encodeURIComponent(name) +
-            "&series_year_began=" + year +
-            "&issue_count=" + count +
-            "&_export=db_json";
-
-        window.open(urlCovers, "_blank");
-
-        // Bouton jaune : mémoriser l’URL covers
-        let btnCovers = document.getElementById('btn_open_covers_url');
-        btnCovers.dataset.url = urlCovers;
-        btnCovers.style.display = "block";
-
-        // Afficher l’étape 2
-        document.getElementById('step2').style.display = "block";
-    });
-
-    // ============================
-    // Bouton JAUNE : ouvrir JSON covers
-    // ============================
-    document.getElementById('btn_open_covers_url').addEventListener('click', function () {
-        if (this.dataset.url) {
-            window.open(this.dataset.url, "_blank");
-        }
-    });
-
-    // ============================
-    // PRÉVISUALISATION DES ISSUES (ÉTAPE 2)
-    // ============================
-    document.getElementById('btn_preview_issues').addEventListener('click', function () {
-
-        let json = document.getElementById('json_issues').value.trim();
-
-        if (!json) {
-            alert("Veuillez coller le JSON des issues.");
-            return;
-        }
-
-        fetch("index.php?route=gestion_issues_preview", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: "json=" + encodeURIComponent(json)
-        })
-        .then(r => r.json())
-        .then(data => {
-
-            if (!data.success) {
-                alert(data.message);
-                return;
-            }
-
-            console.log("Issues reçues :", data.issues);
-            dataIssues = data.issues;
-
-            document.getElementById('step3').style.display = "block";
-        });
-    });
-
-    // ============================
-    // PRÉVISUALISATION DES COVERS (ÉTAPE 3)
-    // ============================
-    document.getElementById('btn_preview_covers').addEventListener('click', async function () {
-
-        let json = document.getElementById('json_covers').value.trim();
-
-        if (!json) {
-            alert("Veuillez coller le JSON des covers.");
-            return;
-        }
-
-        let res = await fetch("index.php?route=gestion_covers_preview", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: "json=" + encodeURIComponent(json)
-        });
-
-        let data = await res.json();
-
-        if (!data.success) {
-            alert(data.message);
-            return;
-        }
-
-        console.log("Covers reçues :", data.covers);
-
-        // Index des issues par ID pour fusion
-        let issuesIndex = {};
-        dataIssues.forEach(i => {
-            issuesIndex[i.id] = i;
-        });
-
-        // Construction du tableau HTML
-        let html = `
-            <table id="covers_table" class="table table-dark table-striped mt-3">
-                <thead>
-                    <tr>
-                        <th>Image</th>
-                        <th>Série</th>
-                        <th>Numéro</th>
-                        <th>Date de mise en vente</th>
-                        <th>ID Episode</th>
-                        <th><input type="checkbox" id="check_all"></th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-        for (let c of data.covers) {
-
-            let issue = issuesIndex[c.issue] || null;
-
-            let serie  = currentSerieName;
-            let number = issue ? issue.number       : "?";
-            let date   = issue ? issue.on_sale_date : "";
-            let idEp   = issue ? issue.id           : c.issue;
-
-            // ============================
-            // MINIATURE GOOGLE IMAGES DIRECTE
-            // ============================
-            let googleQuery = encodeURIComponent(`"comics.org" "${c.issue}" "${c.id}"`);
-            let thumbUrl    = `https://encrypted-tbn0.gstatic.com/images?q=${googleQuery}`;
-
-            html += `
-                <tr>
-                    <td>
-                        <img src="${thumbUrl}"
-                             height="120"
-                             onerror="this.src='https://via.placeholder.com/80x120?text=Cover';">
-                    </td>
-                    <td>${serie}</td>
-                    <td>${number}</td>
-                    <td>${date}</td>
-                    <td>${idEp}</td>
-                    <td><input type="checkbox" class="check_cover" data-cover='${JSON.stringify(c)}'></td>
-                </tr>
-            `;
-        }
-
-        html += `
-                </tbody>
-            </table>
+            <div id="issues_preview_block" class="mt-3"></div>
 
             <button id="btn_import_selected" class="btn btn-success mt-3">
                 Importer sélectionnés
@@ -297,86 +81,51 @@ document.addEventListener("DOMContentLoaded", function() {
             <button id="btn_import_all" class="btn btn-danger mt-3 ms-2">
                 Importer tout
             </button>
-        `;
+        </div>
+    </div>
 
-        document.getElementById('covers_preview_block').innerHTML = html;
+</div>
 
-        // ============================
-        // Activation DataTable
-        // ============================
-        new DataTable('#covers_table', {
-            pageLength: 25,
-            language: {
-                url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json"
-            }
-        });
+<!-- ============================
+     MODALE SÉLECTION COVER WEB
+============================ -->
+<div class="modal fade" id="modalSelectCover" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content bg-dark text-white">
+      <div class="modal-header">
+        <h5 class="modal-title">Sélectionner une cover</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <div id="modal_cover_issue_id" class="d-none" data-issue-id=""></div>
+        <div id="modal_cover_grid" class="row g-3"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn_apply_cover" type="button" class="btn btn-success">
+          Affecter l'image
+        </button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-        // ============================
-        // CHECKBOX "TOUT SÉLECTIONNER"
-        // ============================
-        document.getElementById('check_all').addEventListener('change', function () {
-            let checked = this.checked;
-            document.querySelectorAll('.check_cover').forEach(chk => {
-                chk.checked = checked;
-            });
-        });
-
-        // ============================
-        // IMPORTER SÉLECTIONNÉS
-        // ============================
-        document.getElementById('btn_import_selected').addEventListener('click', function () {
-
-            let selected = document.querySelectorAll('.check_cover:checked');
-
-            if (!selected.length) {
-                alert("Aucune cover sélectionnée.");
-                return;
-            }
-
-            selected.forEach(chk => {
-                let c = JSON.parse(chk.dataset.cover);
-                importCover(c);
-            });
-        });
-
-        // ============================
-        // IMPORTER TOUT
-        // ============================
-        document.getElementById('btn_import_all').addEventListener('click', function () {
-
-            let all = document.querySelectorAll('.check_cover');
-
-            if (!all.length) {
-                alert("Aucune cover à importer.");
-                return;
-            }
-
-            all.forEach(chk => {
-                let c = JSON.parse(chk.dataset.cover);
-                importCover(c);
-            });
-        });
-
-    }); // fin listener btn_preview_covers
-
-    // ============================
-    // FONCTION IMPORT D’UNE COVER
-    // ============================
-    function importCover(c) {
-
-        fetch("index.php?route=gestion_issues_add_cover", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: "cover=" + encodeURIComponent(JSON.stringify(c))
-        })
-        .then(r => r.json())
-        .then(res => {
-            alert(res.message);
-        });
+<style>
+    .placeholder-cover {
+        width: 80px;
+        height: 120px;
+        background-color: #555;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Jolly Lodger', cursive;
+        color: #ff3333;
+        font-size: 14px;
+        text-align: center;
     }
+</style>
 
-}); // fin DOMContentLoaded
-</script>
+<script src="assets/js/issues_import.js"></script>
 
 <?php
 require_once __DIR__ . '/../layouts/footer.php';

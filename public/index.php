@@ -134,19 +134,19 @@ switch ($route) {
         (new IssuesController())->preview();
         break;
 
-    /* Preview covers */
+    /* Ancien système covers JSON (désactivé mais conservé) */
     case 'gestion_covers_preview':
         require_once __DIR__ . '/../app/controllers/IssuesController.php';
         (new IssuesController())->previewCovers();
         break;
 
-    /* Import AJAX issue */
+    /* Ancien import AJAX issue */
     case 'gestion_issues_add':
         require_once __DIR__ . '/../app/controllers/IssuesController.php';
         (new IssuesController())->ajaxAdd();
         break;
 
-    /* Import AJAX cover (GOOGLE IMAGES) */
+    /* Ancien import cover (désactivé) */
     case 'gestion_issues_add_cover':
         require_once __DIR__ . '/../app/controllers/IssuesController.php';
         (new IssuesController())->ajaxAddCover();
@@ -181,6 +181,26 @@ switch ($route) {
 
 
     /* ============================================================
+       NOUVELLES ROUTES — COVERS WEB
+    ============================================================ */
+
+    case 'issues_search_cover':
+        require_once __DIR__ . '/../app/controllers/IssuesController.php';
+        (new IssuesController())->searchCoverWeb();
+        break;
+
+    case 'issues_save_web_cover':
+        require_once __DIR__ . '/../app/controllers/IssuesController.php';
+        (new IssuesController())->saveWebCover();
+        break;
+
+    case 'gestion_issues_importer_save':
+        require_once __DIR__ . '/../app/controllers/IssuesController.php';
+        (new IssuesController())->importerSave();
+        break;
+
+
+    /* ============================================================
        PAGE D’ACCUEIL
     ============================================================ */
 
@@ -191,8 +211,7 @@ switch ($route) {
         <div class="homepage-bg">
             <div class="landing-wrapper">
                 <div class="landing-content">
-                    <h1>COMICSCRYPT BACK‑OFFICE</h1>
-                    <p>Bienvenue dans votre espace d’administration</p>
+                    <h1>Bienvenue dansCOMICSCRYPT</h1>
                 </div>
             </div>
         </div>
