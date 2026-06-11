@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comics Crypt - Labo API</title>
+    <style>
+        :root {
+            --bg-color: #0a0a0a;
+            --panel-bg: #141414;
+            --text-main: #d3d3d3;
+            --accent-red: #8b0000;
+            --border-color: #333;
+            --terminal-green: #00ff33;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 950px;
+            width: 100%;
+        }
+
+        h1 {
+            color: var(--accent-red);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-align: center;
+            border-bottom: 2px solid var(--accent-red);
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            color: #fff;
+            margin-top: 0;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        .panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+        }
+
+        .form-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        input[type="text"], input[type="number"] {
+            padding: 10px;
+            background-color: #000;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            font-family: inherit;
+        }
+
+        input[type="text"] { flex: 2; min-width: 150px; }
+        input[type="number"] { flex: 1; min-width: 80px; }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent-red);
+        }
+
+        .or-separator {
+            font-weight: bold;
+            color: var(--accent-red);
+            font-size: 0.9rem;
+            padding: 0 5px;
+        }
+
+        button {
+            background-color: var(--accent-red);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: background 0.3s;
+        }
+
+        button:hover { background-color: #a50000; }
+
+        .debug-container {
+            margin-bottom: 15px;
+            background-color: #050505;
+            border: 1px solid #222;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .debug-label {
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .debug-url {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--terminal-green);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.8rem;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .results {
+            background-color: #000;
+            border: 1px dashed var(--border-color);
+            padding: 15px;
+            min-height: 50px;
+            font-size: 0.9rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .comic-card {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #222;
+            align-items: flex-start;
+        }
+        .comic-card:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .comic-thumb {
+            width: 100px;
+            height: auto;
+            border: 1px solid var(--accent-red);
+            background-color: #111;
+        }
+        .comic-thumb-large {
+            width: 180px;
+            height: auto;
+            border: 1px solid var(--accent-red);
+        }
+        .comic-info { flex: 1; }
+
+        .highlight { color: var(--accent-red); font-weight: bold; }
+        
+        .description-block {
+            margin-top: 10px;
+            color: #aaa;
+            line-height: 1.4;
+            max-height: 150px;
+            overflow-y: auto;
+            background: #080808;
+            padding: 10px;
+            border: 1px solid #151515;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Laboratoire de la Crypte</h1>
+
+    <div class="panel">
+        <h2>1. Rechercher un Éditeur</h2>
+        <div class="form-group">
+            <input type="text" id="pubName" placeholder="Ex: Marvel, DC Comics...">
+            <input type="number" id="pubLimit" placeholder="Limite" value="10">
+            <button onclick="fetchPublishers()">Invoquer</button>
+        </div>
+        <div class="debug-container">
+            <div class="debug-label">Requête brute (Syntaxe Comic Vine) :</div>
+            <input type="text" id="debugPub" class="debug-url" readonly value="Aucune requête envoyée.">
+        </div>
+        <div class="results" id="resPublishers">Les résultats apparaîtront ici...</div>
+    </div>
+
+    <div class="panel">
+        <h2>2. Rechercher une Série (Volume)</h2>
+        <div class="form-group">
+            <input type="text" id="seriesName" placeholder="Ex: Avengers, Absolute Batman...">
+            <input type="number" id="seriesYear" placeholder="Année (ex: 1963)">
+            <input type="number" id="seriesLimit" placeholder="Limite" value="10">
+            <button onclick="fetchSeries()">Invoquer</button>
+        </div>
+        <div class="debug-container">
+            <div class="debug-label">Requête brute (Syntaxe Comic Vine) :</div>
+            <input type="text" id="debugSeries" class="debug-url" readonly value="Aucune requête envoyée.">
+        </div>
+        <div class="results" id="resSeries">Les résultats apparaîtront ici...</div>
+    </div>
+
+    <div class="panel">
+        <h2>3. Épisodes d'une Série</h2>
+        <div class="form-group">
+            <input type="text" id="volId" placeholder="ID du Volume (ex: 166619)">
+            <input type="number" id="issuesLimit" placeholder="Limite" value="20">
+            <button onclick="fetchIssues()">Lister Épisodes</button>
+        </div>
+        <div class="debug-container">
+            <div class="debug-label">Requête brute (Syntaxe Comic Vine) :</div>
+            <input type="text" id="debugIssues" class="debug-url" readonly value="Aucune requête envoyée.">
+        </div>
+        <div class="results" id="resIssues">Les résultats apparaîtront ici...</div>
+    </div>
+
+    <div class="panel">
+        <h2>4. Détails d'un Épisode</h2>
+        <div class="subtitle">Remplissez soit l'ID direct, soit le bloc Série + Numéro.</div>
+        <div class="form-group">
+            <input type="text" id="directIssueId" placeholder="ID direct de l'épisode (ex: 1130075)">
+            <span class="or-separator">OU</span>
+            <input type="text" id="singleVolId" placeholder="ID de la série (ex: 166619)">
+            <input type="text" id="issueNum" placeholder="N° d'épisode (ex: 1)">
+            <button onclick="fetchIssueDetail()">Afficher Détails</button>
+        </div>
+        <div class="debug-container">
+            <div class="debug-label">Requête brute (Syntaxe Comic Vine) :</div>
+            <input type="text" id="debugDetail" class="debug-url" readonly value="Aucune requête envoyée.">
+        </div>
+        <div class="results" id="resIssueDetail">Les résultats apparaîtront ici...</div>
+    </div>
+
+</div>
+
+<script>
+    const API_KEY = 'b3dbb0ee3b99331ebcf840f56441b0b87771f0e3';
+    const PROXY_URL = 'https://corsproxy.io/?'; 
+    const BASE_URL = 'https://comicvine.gamespot.com/api';
+
+    // Correction globale de l'encodage pour le proxy
+    async function callAPI(endpoint, params, debugInputId) {
+        let queryParts = [
+            `api_key=${API_KEY}`,
+            `format=json`
+        ];
+
+        for (const [key, value] of Object.entries(params)) {
+            queryParts.push(`${key}=${value}`);
+        }
+
+        const queryString = queryParts.join('&');
+        const targetUrl = `${BASE_URL}${endpoint}?${queryString}`;
+        
+        if(debugInputId) {
+            document.getElementById(debugInputId).value = targetUrl;
+        }
+
+        // CORRECTIF CRUCIAL : encodeURIComponent protège les '&' et les ':' de l'URL cible
+        const fetchUrl = `${PROXY_URL}${encodeURIComponent(targetUrl)}`;
+
+        try {
+            const response = await fetch(fetchUrl);
+            const data = await response.json();
+            return data.results;
+        } catch (error) {
+            console.error("Erreur réseau ou proxy :", error);
+            return null;
+        }
+    }
+
+    // 1. Éditeurs
+    async function fetchPublishers() {
+        const query = document.getElementById('pubName').value;
+        const limit = document.getElementById('pubLimit').value;
+        const resDiv = document.getElementById('resPublishers');
+        resDiv.innerHTML = "Recherche...";
+        
+        const results = await callAPI('/publishers/', { 
+            filter: `name:${query}`,
+            limit: limit 
+        }, 'debugPub');
+        
+        if (results && results.length > 0) {
+            resDiv.innerHTML = results.map(p => {
+                const imgUrl = p.image ? p.image.icon_url : '';
+                return `
+                    <div class="comic-card">
+                        ${imgUrl ? `<img src="${imgUrl}" class="comic-thumb" alt="logo">` : ''}
+                        <div class="comic-info">
+                            <span class="highlight">${p.name}</span> (ID: ${p.id})<br>
+                            <p style="margin:5px 0 0 0;">${p.deck || 'Pas de description.'}</p>
+                        </div>
+                    </div>`;
+            }).join('');
+        } else { resDiv.innerHTML = "Aucun éditeur trouvé."; }
+    }
+
+    // 2. Séries
+    async function fetchSeries() {
+        const query = document.getElementById('seriesName').value;
+        const year = document.getElementById('seriesYear').value.trim();
+        const limit = document.getElementById('seriesLimit').value;
+        const resDiv = document.getElementById('resSeries');
+        resDiv.innerHTML = "Recherche...";
+        
+        let filterString = `name:${query}`;
+        if(year) {
+            filterString += `,start_year:${year}`;
+        }
+
+        const results = await callAPI('/volumes/', { 
+            filter: filterString,
+            limit: limit
+        }, 'debugSeries');
+        
+        if (results && results.length > 0) {
+            resDiv.innerHTML = results.map(v => {
+                const imgUrl = v.image ? v.image.small_url : '';
+                return `
+                    <div class="comic-card">
+                        ${imgUrl ? `<img src="${imgUrl}" class="comic-thumb" alt="cover">` : ''}
+                        <div class="comic-info">
+                            <span class="highlight">${v.name}</span> (ID: ${v.id})<br>
+                            <strong>Début:</strong> ${v.start_year || 'Inconnu'} | 
+                            <strong>Éditeur:</strong> ${v.publisher ? v.publisher.name : 'Inconnu'}<br>
+                            <strong>Épisodes:</strong> ${v.count_of_issues}
+                        </div>
+                    </div>`;
+            }).join('');
+        } else { resDiv.innerHTML = "Aucune série trouvée."; }
+    }
+
+    // 3. Épisodes d'une série
+    async function fetchIssues() {
+        const volId = document.getElementById('volId').value;
+        const limit = document.getElementById('issuesLimit').value;
+        const resDiv = document.getElementById('resIssues');
+        resDiv.innerHTML = "Recherche...";
+        
+        const results = await callAPI('/issues/', { 
+            filter: `volume:${volId}`, 
+            sort: 'issue_number:asc',
+            limit: limit
+        }, 'debugIssues');
+        
+        if (results && results.length > 0) {
+            resDiv.innerHTML = results.map(i => {
+                const imgUrl = i.image ? i.image.icon_url : '';
+                return `
+                    <div class="comic-card" style="margin-bottom:10px; padding-bottom:10px;">
+                        ${imgUrl ? `<img src="${imgUrl}" style="width:50px; height:auto; border:1px solid #333;" alt="cover">` : ''}
+                        <div class="comic-info">
+                            <span class="highlight">Épisode #${i.issue_number}</span> : ${i.name || 'Sans titre'} <br>
+                            <strong>ID unique :</strong> <span style="color: #fff; background: #222; padding: 2px 6px; font-size:0.8rem;">${i.id}</span>
+                        </div>
+                    </div>`;
+            }).join('');
+        } else { resDiv.innerHTML = "Aucun épisode trouvé."; }
+    }
+
+    // 4. Détails d'un épisode (Hybride corrigé)
+    async function fetchIssueDetail() {
+        const directId = document.getElementById('directIssueId').value.trim();
+        const volId = document.getElementById('singleVolId').value.trim();
+        const issueNum = document.getElementById('issueNum').value.trim();
+        const resDiv = document.getElementById('resIssueDetail');
+        
+        resDiv.innerHTML = "Ouverture des archives...";
+        
+        let issue = null;
+
+        if (directId) {
+            // ID Direct -> Endpoint Singulier officiel
+            const result = await callAPI(`/issue/4000-${directId}/`, {}, 'debugDetail');
+            if (result) {
+                issue = result; 
+            }
+        } else if (volId && issueNum) {
+            // Combo Série + Numéro -> Endpoint Pluriel avec filtres
+            const results = await callAPI('/issues/', { filter: `volume:${volId},issue_number:${issueNum}` }, 'debugDetail');
+            if (results && results.length > 0) {
+                issue = results[0]; 
+            }
+        } else {
+            resDiv.innerHTML = "Veuillez remplir les champs.";
+            return;
+        }
+        
+        if (issue) {
+            const descriptionTexte = issue.description || issue.deck || 'Aucun résumé disponible.';
+            const imgUrl = issue.image ? issue.image.medium_url : '';
+
+            resDiv.innerHTML = `
+                <div class="comic-card">
+                    ${imgUrl ? `<img src="${imgUrl}" class="comic-thumb-large" alt="Cover">` : ''}
+                    <div class="comic-info">
+                        <h3 style="margin-top:0; color:#fff;">${issue.name || 'Sans titre'}</h3>
+                        <span class="highlight">Numéro :</span> Épisode #${issue.issue_number}<br>
+                        <span class="highlight">ID Unique :</span> ${issue.id}<br>
+                        <span class="highlight">Date de couverture :</span> ${issue.cover_date || 'Inconnue'}<br>
+                        <span class="highlight">Résumé :</span>
+                        <div class="description-block">${descriptionTexte}</div>
+                    </div>
+                </div>
+            `;
+        } else { 
+            resDiv.innerHTML = "Épisode introuvable. Vérifiez l'ID de la série et le numéro de l'épisode."; 
+        }
+    }
+</script>
+
+</body>
+</html>

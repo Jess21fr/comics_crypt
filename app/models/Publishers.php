@@ -1,6 +1,6 @@
 <?php
 
-class Publisher
+class Publishers
 {
     private $db;
 
@@ -16,18 +16,12 @@ class Publisher
         );
     }
 
-    /**
-     * Récupérer tous les éditeurs
-     */
     public function getAll()
     {
         $stmt = $this->db->query("SELECT * FROM publishers ORDER BY name ASC");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Vérifier existence par ID interne
-     */
     public function exists($id)
     {
         $stmt = $this->db->prepare("SELECT id FROM publishers WHERE id = ?");
@@ -35,9 +29,6 @@ class Publisher
         return (bool) $stmt->fetchColumn();
     }
 
-    /**
-     * Vérifier existence par ID comics.org
-     */
     public function existsByPublisherId($publisher_id)
     {
         $stmt = $this->db->prepare("SELECT id FROM publishers WHERE publisher_id = ?");
@@ -45,9 +36,6 @@ class Publisher
         return (bool) $stmt->fetchColumn();
     }
 
-    /**
-     * Basculer actif / inactif
-     */
     public function toggleActif($id)
     {
         $stmt = $this->db->prepare("SELECT actif FROM publishers WHERE id = ?");
@@ -62,9 +50,6 @@ class Publisher
         return $new;
     }
 
-    /**
-     * Récupérer un éditeur par ID interne
-     */
     public function getById($id)
     {
         $stmt = $this->db->prepare("SELECT * FROM publishers WHERE id = ?");
@@ -72,9 +57,6 @@ class Publisher
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Mise à jour d’un éditeur
-     */
     public function update($id, $data)
     {
         $stmt = $this->db->prepare("
@@ -99,9 +81,6 @@ class Publisher
         ]);
     }
 
-    /**
-     * Insertion depuis JSON importé
-     */
     public function insertFromJson($p)
     {
         $stmt = $this->db->prepare("
@@ -122,7 +101,7 @@ class Publisher
     }
 
     /**
-     * Récupérer tous les éditeurs actifs
+     * VERSION CORRIGÉE : renvoie AUSSI publisher_id
      */
     public function getActivePublishers()
     {
@@ -131,6 +110,7 @@ class Publisher
                 p.id,
                 p.name,
                 p.country,
+                p.publisher_id,      -- IMPORTANT
                 l.nom_court AS country_code
             FROM publishers p
             LEFT JOIN langue l 

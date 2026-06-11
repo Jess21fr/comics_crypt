@@ -3,10 +3,10 @@
 return [
 
     'db' => [
-        'host' => 'localhost',
-        'name' => 'comics_crypt',
-        'user' => 'root',
-        'pass' => '',
+        'host'    => 'localhost',
+        'name'    => 'comics_crypt',
+        'user'    => 'root',
+        'pass'    => '',
         'charset' => 'utf8mb4',
     ],
 

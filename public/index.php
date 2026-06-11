@@ -12,38 +12,16 @@ switch ($route) {
     ============================================================ */
 
     case 'gestion_editeurs_importer':
-        require_once __DIR__ . '/../app/controllers/PublisherController.php';
-        (new PublisherController())->importer();
-        break;
-
     case 'gestion_editeurs_importer_add':
-        require_once __DIR__ . '/../app/controllers/PublisherController.php';
-        (new PublisherController())->ajaxAdd();
-        break;
-
     case 'gestion_editeurs_importer_info':
-        require_once __DIR__ . '/../app/controllers/PublisherController.php';
-        (new PublisherController())->ajaxInfo();
-        break;
-
     case 'gestion_editeurs_gerer':
-        require_once __DIR__ . '/../app/controllers/PublisherController.php';
-        (new PublisherController())->gerer();
-        break;
-
     case 'gestion_editeurs_toggle':
-        require_once __DIR__ . '/../app/controllers/PublisherController.php';
-        (new PublisherController())->toggle();
-        break;
-
     case 'gestion_editeurs_edit':
-        require_once __DIR__ . '/../app/controllers/PublisherController.php';
-        (new PublisherController())->edit();
-        break;
-
     case 'gestion_editeurs_update':
         require_once __DIR__ . '/../app/controllers/PublisherController.php';
-        (new PublisherController())->update();
+        $ctrl = new PublisherController();
+        $method = str_replace('gestion_editeurs_', '', $route);
+        $ctrl->$method();
         break;
 
 
@@ -52,43 +30,17 @@ switch ($route) {
     ============================================================ */
 
     case 'gestion_series_importer':
-        require_once __DIR__ . '/../app/controllers/SeriesController.php';
-        (new SeriesController())->importer();
-        break;
-
     case 'gestion_series_preview':
-        require_once __DIR__ . '/../app/controllers/SeriesController.php';
-        (new SeriesController())->preview();
-        break;
-
     case 'gestion_series_ajax_add':
-        require_once __DIR__ . '/../app/controllers/SeriesController.php';
-        (new SeriesController())->ajaxAdd();
-        break;
-
     case 'gestion_series_ajax_info':
-        require_once __DIR__ . '/../app/controllers/SeriesController.php';
-        (new SeriesController())->ajaxInfo();
-        break;
-
     case 'gestion_series_gerer':
-        require_once __DIR__ . '/../app/controllers/SeriesController.php';
-        (new SeriesController())->gerer();
-        break;
-
     case 'gestion_series_edit':
-        require_once __DIR__ . '/../app/controllers/SeriesController.php';
-        (new SeriesController())->edit();
-        break;
-
     case 'gestion_series_update':
-        require_once __DIR__ . '/../app/controllers/SeriesController.php';
-        (new SeriesController())->update();
-        break;
-
     case 'gestion_series_delete':
         require_once __DIR__ . '/../app/controllers/SeriesController.php';
-        (new SeriesController())->delete();
+        $ctrl = new SeriesController();
+        $method = str_replace('gestion_series_', '', $route);
+        $ctrl->$method();
         break;
 
 
@@ -122,81 +74,30 @@ switch ($route) {
        GESTION > ÉPISODES (ISSUES)
     ============================================================ */
 
-    /* Importer issues + covers (UN SEUL ÉCRAN) */
     case 'gestion_issues_importer':
-        require_once __DIR__ . '/../app/controllers/IssuesController.php';
-        (new IssuesController())->importer();
-        break;
-
-    /* Preview issues */
     case 'gestion_issues_preview':
-        require_once __DIR__ . '/../app/controllers/IssuesController.php';
-        (new IssuesController())->preview();
-        break;
-
-    /* Ancien système covers JSON (désactivé mais conservé) */
-    case 'gestion_covers_preview':
-        require_once __DIR__ . '/../app/controllers/IssuesController.php';
-        (new IssuesController())->previewCovers();
-        break;
-
-    /* Ancien import AJAX issue */
-    case 'gestion_issues_add':
-        require_once __DIR__ . '/../app/controllers/IssuesController.php';
-        (new IssuesController())->ajaxAdd();
-        break;
-
-    /* Ancien import cover (désactivé) */
-    case 'gestion_issues_add_cover':
-        require_once __DIR__ . '/../app/controllers/IssuesController.php';
-        (new IssuesController())->ajaxAddCover();
-        break;
-
-    /* Info issue */
-    case 'gestion_issues_info':
-        require_once __DIR__ . '/../app/controllers/IssuesController.php';
-        (new IssuesController())->ajaxInfo();
-        break;
-
-    /* Gérer issues */
+    case 'gestion_issues_importer_save':
     case 'gestion_issues_gerer':
-        require_once __DIR__ . '/../app/controllers/IssuesController.php';
-        (new IssuesController())->gerer();
-        break;
-
     case 'gestion_issues_edit':
-        require_once __DIR__ . '/../app/controllers/IssuesController.php';
-        (new IssuesController())->edit();
-        break;
-
     case 'gestion_issues_update':
-        require_once __DIR__ . '/../app/controllers/IssuesController.php';
-        (new IssuesController())->update();
-        break;
-
     case 'gestion_issues_delete':
         require_once __DIR__ . '/../app/controllers/IssuesController.php';
-        (new IssuesController())->delete();
+        $ctrl = new IssuesController();
+        $method = str_replace('gestion_issues_', '', $route);
+        $ctrl->$method();
         break;
 
 
     /* ============================================================
-       NOUVELLES ROUTES — COVERS WEB
+       COMICVINE — COVERS HD
     ============================================================ */
 
-    case 'issues_search_cover':
-        require_once __DIR__ . '/../app/controllers/IssuesController.php';
-        (new IssuesController())->searchCoverWeb();
-        break;
-
-    case 'issues_save_web_cover':
-        require_once __DIR__ . '/../app/controllers/IssuesController.php';
-        (new IssuesController())->saveWebCover();
-        break;
-
-    case 'gestion_issues_importer_save':
-        require_once __DIR__ . '/../app/controllers/IssuesController.php';
-        (new IssuesController())->importerSave();
+    case 'comicvine_search_issue':
+    case 'comicvine_download_cover':
+        require_once __DIR__ . '/../app/controllers/ComicVineCoverController.php';
+        $ctrl = new ComicVineCoverController();
+        $method = str_replace('comicvine_', '', $route);
+        $ctrl->$method();
         break;
 
 
@@ -211,7 +112,7 @@ switch ($route) {
         <div class="homepage-bg">
             <div class="landing-wrapper">
                 <div class="landing-content">
-                    <h1>Bienvenue dansCOMICSCRYPT</h1>
+                    <h1>Bienvenue dans COMICSCRYPT</h1>
                 </div>
             </div>
         </div>

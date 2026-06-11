@@ -2,9 +2,9 @@
 
 class SeriesController
 {
-    /**
-     * Page d'import des séries
-     */
+    /* ============================================================
+       PAGE : Importer les séries
+    ============================================================ */
     public function importer()
     {
         require_once __DIR__ . '/../models/Publisher.php';
@@ -14,9 +14,9 @@ class SeriesController
         require __DIR__ . '/../views/series/importer.php';
     }
 
-    /**
-     * Prévisualisation JSON
-     */
+    /* ============================================================
+       PRÉVISUALISATION JSON
+    ============================================================ */
     public function preview()
     {
         header('Content-Type: application/json');
@@ -40,10 +40,10 @@ class SeriesController
         ]);
     }
 
-    /**
-     * Import AJAX d'une série
-     */
-    public function ajaxAdd()
+    /* ============================================================
+       AJOUT AJAX D’UNE SÉRIE
+    ============================================================ */
+    public function ajax_add()
     {
         header('Content-Type: application/json');
 
@@ -75,10 +75,10 @@ class SeriesController
         ]);
     }
 
-    /**
-     * Informations détaillées d'une série (pour la modale d'import)
-     */
-    public function ajaxInfo()
+    /* ============================================================
+       INFO AJAX POUR MODALE
+    ============================================================ */
+    public function ajax_info()
     {
         header('Content-Type: application/json');
 
@@ -105,26 +105,21 @@ class SeriesController
     }
 
     /* ============================================================
-       GESTION DES SERIES (Gérer)
-       ============================================================ */
-
-    /**
-     * Page : Gestion > Séries > Gérer
-     */
+       PAGE : Gérer les séries
+    ============================================================ */
     public function gerer()
     {
         require_once __DIR__ . '/../models/Series.php';
         $seriesModel = new Series();
 
-        // Récupération des séries avec nom éditeur
         $series = $seriesModel->getAllWithPublisher();
 
         require __DIR__ . '/../views/series/gerer.php';
     }
 
-    /**
-     * Récupération d'une série pour la modale d'édition
-     */
+    /* ============================================================
+       FORMULAIRE D’ÉDITION (modale)
+    ============================================================ */
     public function edit()
     {
         if (empty($_GET['id'])) {
@@ -143,13 +138,12 @@ class SeriesController
             return;
         }
 
-        // Vue partielle : formulaire d'édition
         require __DIR__ . '/../views/series/edit_form.php';
     }
 
-    /**
-     * Mise à jour d'une série (AJAX)
-     */
+    /* ============================================================
+       MISE À JOUR AJAX
+    ============================================================ */
     public function update()
     {
         header('Content-Type: application/json');
@@ -170,9 +164,9 @@ class SeriesController
         ]);
     }
 
-    /**
-     * Suppression d'une série (AJAX)
-     */
+    /* ============================================================
+       SUPPRESSION AJAX
+    ============================================================ */
     public function delete()
     {
         header('Content-Type: application/json');

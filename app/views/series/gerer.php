@@ -3,7 +3,7 @@ $config = require __DIR__ . '/../../Config/config.php';
 require __DIR__ . '/../layouts/header.php';
 require __DIR__ . '/../layouts/menu.php';
 
-// Modèles
+// Modèle langue (pour drapeaux)
 require_once __DIR__ . '/../../models/Langue.php';
 $langueModel = new Langue();
 ?>
@@ -21,6 +21,7 @@ $langueModel = new Langue();
                 <th>Année début</th>
                 <th>Année fin</th>
                 <th>Nb. issues</th>
+                <th>ComicVine Volume ID</th>
                 <th class="text-center">Actions</th>
             </tr>
         </thead>
@@ -28,7 +29,7 @@ $langueModel = new Langue();
         <tbody>
             <?php foreach ($series as $s): ?>
                 <?php
-                    // Pays via table langue (comme pour publishers)
+                    // Pays via table langue
                     $langue = $langueModel->getByComicsOrgId($s['country']);
 
                     if ($langue) {
@@ -50,6 +51,7 @@ $langueModel = new Langue();
                     $anneeDebut = $s['year_began'] ? htmlspecialchars($s['year_began']) : '-';
                     $anneeFin   = $s['year_ended'] ? htmlspecialchars($s['year_ended']) : '-';
                     $nbIssues   = $s['issue_count'] !== null ? (int)$s['issue_count'] : 0;
+                    $cvVolume   = $s['comicvine_volume_id'] ?: '-';
                 ?>
                 <tr>
                     <td><?= htmlspecialchars($s['name']) ?></td>
@@ -58,6 +60,7 @@ $langueModel = new Langue();
                     <td><?= $anneeDebut ?></td>
                     <td><?= $anneeFin ?></td>
                     <td><?= $nbIssues ?></td>
+                    <td><?= htmlspecialchars($cvVolume) ?></td>
 
                     <td class="text-center">
 
@@ -139,7 +142,7 @@ $(function() {
 
         $('#editSeriesModalBody').html("Chargement...");
 
-        $.get("<?= $config['base_url'] ?>/index.php?route=gestion_series_edit&id=" + encodeURIComponent(id),
+        $.get("index.php?route=gestion_series_edit&id=" + encodeURIComponent(id),
             function(data) {
                 $('#editSeriesModalBody').html(data);
                 new bootstrap.Modal(document.getElementById('editSeriesModal')).show();
@@ -158,10 +161,9 @@ $(function() {
     $('#confirmDeleteSeries').on('click', function() {
         let id = $('#deleteSeriesId').val();
 
-        $.post("<?= $config['base_url'] ?>/index.php?route=gestion_series_delete",
+        $.post("index.php?route=gestion_series_delete",
             { id: id },
             function(response) {
-                // Option simple : on recharge
                 location.reload();
             },
             "json"

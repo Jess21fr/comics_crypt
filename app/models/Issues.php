@@ -73,7 +73,7 @@ class Issues
     }
 
     /* ============================================================
-       RÉCUPÉRER UNE ISSUE PAR ID INTERNE (optionnel)
+       RÉCUPÉRER UNE ISSUE PAR ID INTERNE
     ============================================================ */
     public function getById($id)
     {
@@ -84,7 +84,7 @@ class Issues
     }
 
     /* ============================================================
-       LISTE DES ISSUES D'UNE SÉRIE (optionnel)
+       LISTE DES ISSUES D'UNE SÉRIE
     ============================================================ */
     public function getBySeries($seriesId)
     {

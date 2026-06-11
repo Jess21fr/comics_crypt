@@ -2,7 +2,6 @@ console.log(">>> issues_import.js chargé <<<");
 
 let dataIssues = [];
 let currentSerieName = "";
-let modalSelectCover = null;
 
 document.addEventListener("DOMContentLoaded", function() {
 
@@ -14,11 +13,6 @@ document.addEventListener("DOMContentLoaded", function() {
         autoWidth: false,
         language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json" }
     });
-
-    /* ============================================================
-       MODALE BOOTSTRAP
-    ============================================================ */
-    modalSelectCover = new bootstrap.Modal(document.getElementById('modalSelectCover'));
 
     /* ============================================================
        ÉTAPE 1 — CHOISIR UNE SÉRIE
@@ -115,47 +109,7 @@ document.addEventListener("DOMContentLoaded", function() {
         alert("Import de toutes les issues terminé.");
     });
 
-    /* ============================================================
-       BOUTON "AFFECTER L'IMAGE" DANS LA MODALE
-    ============================================================ */
-    document.getElementById('btn_apply_cover').addEventListener('click', async function () {
-        const issueId = document.getElementById('modal_cover_issue_id').dataset.issueId;
-        if (!issueId) {
-            alert("Issue non définie.");
-            return;
-        }
-
-        const selected = document.querySelector('input[name="selected_cover"]:checked');
-        if (!selected) {
-            alert("Veuillez sélectionner une image.");
-            return;
-        }
-
-        const imageUrl = selected.value;
-
-        const res = await fetch("index.php?route=issues_save_web_cover", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: "issue_id=" + encodeURIComponent(issueId) +
-                  "&url=" + encodeURIComponent(imageUrl)
-        });
-
-        const data = await res.json();
-        if (!data.success) {
-            alert(data.message || "Erreur lors de l'enregistrement de la cover.");
-            return;
-        }
-
-        const placeholder = document.querySelector(`#cover-placeholder-${issueId}`);
-        if (placeholder) {
-            placeholder.innerHTML = `<img src="${data.thumb}?t=${Date.now()}" width="80" height="120">`;
-        }
-
-        modalSelectCover.hide();
-    });
-
 });
-
 /* ============================================================
    CONSTRUCTION DU TABLEAU D'IMPORT
 ============================================================ */
@@ -198,9 +152,8 @@ function buildIssuesTable(issues) {
                 <td>${date}</td>
                 <td>${idEp}</td>
                 <td>
-                    <button class="btn btn-sm btn-info btn_search_web_cover"
+                    <button class="btn btn-sm btn-info btn_search_cover"
                             data-issue-id="${idEp}"
-                            data-serie="${serie}"
                             data-number="${number}">
                         Sélectionner une cover
                     </button>
@@ -232,61 +185,59 @@ function buildIssuesTable(issues) {
     });
 
     /* ============================================================
-       BOUTON "SÉLECTIONNER UNE COVER"
+       BOUTON "SÉLECTIONNER UNE COVER" — VERSION COMICVINE
     ============================================================ */
     document.addEventListener('click', async function(e) {
-        const btn = e.target.closest('.btn_search_web_cover');
+        const btn = e.target.closest('.btn_search_cover');
         if (!btn) return;
 
-        const issueId  = btn.dataset.issueId;
-        const serie    = btn.dataset.serie;
-        const number   = btn.dataset.number;
+        const issueId = btn.dataset.issueId;
+        const number  = btn.dataset.number;
 
-        const query = `${serie} issue #${number} cover marvel`;
-
-        const res = await fetch("index.php?route=issues_search_cover", {
+        // Appel ComicVine
+        const res = await fetch("index.php?route=comicvine_search_issue", {
             method: "POST",
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: "query=" + encodeURIComponent(query)
+            body: "issue_number=" + encodeURIComponent(number)
         });
 
         const data = await res.json();
         if (!data.success) {
-            alert(data.message || "Erreur lors de la recherche d'images.");
+            alert(data.message || "Erreur ComicVine.");
             return;
         }
 
-        document.getElementById('modal_cover_issue_id').dataset.issueId = issueId;
-
-        const grid = document.getElementById('modal_cover_grid');
-        grid.innerHTML = "";
-
-        if (!data.images.length) {
-            grid.innerHTML = "<p>Aucune image trouvée pour cette requête.</p>";
-        } else {
-            let idx = 0;
-            for (let img of data.images) {
-                const url   = img.url;
-                const thumb = img.thumb || img.url;
-                const title = img.title || "";
-
-                const col = document.createElement('div');
-                col.className = "col-3";
-
-                col.innerHTML = `
-                    <label class="w-100">
-                        <input type="radio" name="selected_cover" value="${url}" ${idx === 0 ? 'checked' : ''}>
-                        <img src="${thumb}" class="img-fluid mb-2" style="max-height:200px; object-fit:cover;">
-                        <div class="small text-muted">${title}</div>
-                    </label>
-                `;
-
-                grid.appendChild(col);
-                idx++;
-            }
+        // Si aucune image
+        if (!data.results || !data.results.length) {
+            alert("Aucune cover trouvée sur ComicVine.");
+            return;
         }
 
-        modalSelectCover.show();
+        // On prend la meilleure image
+        const imageUrl = data.results[0].image.original_url;
+
+        // Téléchargement + redimensionnement
+        const res2 = await fetch("index.php?route=comicvine_download_cover", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: "issue_id=" + encodeURIComponent(issueId) +
+                  "&url=" + encodeURIComponent(imageUrl)
+        });
+
+        const data2 = await res2.json();
+        if (!data2.success) {
+            alert(data2.message || "Erreur lors du téléchargement de la cover.");
+            return;
+        }
+
+        // Mise à jour du placeholder
+        const placeholder = document.querySelector(`#cover-placeholder-${issueId}`);
+        if (placeholder) {
+            placeholder.innerHTML = `
+                <img src="/comics_crypt/public/covers/${issueId}.jpg?t=${Date.now()}"
+                     width="80" height="120">
+            `;
+        }
     });
 
 }

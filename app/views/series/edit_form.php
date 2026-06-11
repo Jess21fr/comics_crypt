@@ -28,6 +28,12 @@
     </div>
 
     <div class="mb-3">
+        <label class="form-label">Volume ID ComicVine</label>
+        <input type="text" name="comicvine_volume_id" class="form-control"
+               value="<?= htmlspecialchars($serie['comicvine_volume_id']) ?>">
+    </div>
+
+    <div class="mb-3">
         <label class="form-label">Notes</label>
         <textarea name="notes" class="form-control" rows="5"><?= htmlspecialchars($serie['notes']) ?></textarea>
     </div>
@@ -45,7 +51,7 @@ $(function() {
         e.preventDefault();
 
         $.post(
-            "<?= $config['base_url'] ?>/index.php?route=gestion_series_update",
+            "index.php?route=gestion_series_update",
             $(this).serialize(),
             function(response) {
 

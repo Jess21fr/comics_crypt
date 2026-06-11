@@ -3,178 +3,135 @@
 class ComicVineCoverController
 {
     private string $apiKey;
-    private string $baseUrl;
+    private string $baseUrl = "https://comicvine.gamespot.com/api";
 
     public function __construct()
     {
-        $config = require __DIR__ . '/../config.php';
-        $this->apiKey  = $config['comicvine_api_key'];
-        $this->baseUrl = $config['comicvine_base_url'];
+        $config = require __DIR__ . '/../Config/config.php';
+        $this->apiKey = $config['comicvine_api_key'];
     }
 
-    /* ============================================================
-       1) Recherche d'une issue ComicVine par volume + numéro
-    ============================================================ */
-    public function searchIssue()
+    /**
+     * Recherche la meilleure cover ComicVine pour une issue
+     * GET /comicvine/cover?volume_id=XXX&number=YYY
+     */
+    public function search()
     {
-        $volumeId = $_POST['volume_id'] ?? null;
-        $number   = $_POST['number'] ?? null;
-
-        if (!$volumeId || !$number) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Paramètres manquants (volume_id, number)'
-            ]);
+        if (!isset($_GET['volume_id'], $_GET['number'])) {
+            $this->jsonError("Paramètres manquants : volume_id, number");
             return;
         }
 
+        $volumeId = (int) $_GET['volume_id'];
+        $number   = $_GET['number'];
+
+        // Requête ComicVine conforme à la documentation
         $url = $this->baseUrl
             . "/issues/?api_key={$this->apiKey}&format=json"
-            . "&filter=volume:{$volumeId},issue_number:{$number}"
-            . "&limit=1";
+            . "&filter=volume:{$volumeId},number:{$number}"
+            . "&field_list=id,issue_number,name,image,cover_date,volume"
+            . "&limit=5";
 
-        $json = $this->curlGet($url);
+        $json = $this->curl($url);
 
-        if (!$json || empty($json['results'])) {
-            echo json_encode([
-                'success' => false,
-                'message' => "Issue introuvable sur ComicVine"
-            ]);
+        if (!$json || !isset($json['results'])) {
+            $this->jsonError("Aucun résultat ComicVine");
             return;
         }
 
-        $issue = $json['results'][0];
+        $results = $json['results'];
 
-        echo json_encode([
-            'success' => true,
-            'issue'   => [
-                'id'    => $issue['id'],
-                'name'  => $issue['name'],
-                'image' => $issue['image'] ?? null
-            ]
+        if (empty($results)) {
+            $this->jsonError("Aucune issue trouvée pour volume={$volumeId}, number={$number}");
+            return;
+        }
+
+        // On prend la première issue (la plus pertinente)
+        $issue = $results[0];
+
+        $image = $issue['image']['original_url']
+            ?? $issue['image']['super_url']
+            ?? $issue['image']['medium_url']
+            ?? $issue['image']['icon_url']
+            ?? null;
+
+        $this->jsonSuccess([
+            "id"          => $issue['id'],
+            "name"        => $issue['name'],
+            "number"      => $issue['issue_number'],
+            "cover_date"  => $issue['cover_date'],
+            "volume"      => $issue['volume']['id'] ?? null,
+            "image"       => $image
         ]);
     }
 
-    /* ============================================================
-       2) Téléchargement de la cover HD + thumbnail
-    ============================================================ */
-    public function downloadCover()
+    /**
+     * Téléchargement de la cover
+     * POST /comicvine/cover/download
+     */
+    public function download()
     {
-        $issueId = $_POST['issue_id'] ?? null;
-        $url     = $_POST['url'] ?? null;
-
-        if (!$issueId || !$url) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Paramètres manquants (issue_id, url)'
-            ]);
+        if (!isset($_POST['url'], $_POST['issue_id'])) {
+            $this->jsonError("Paramètres manquants : url, issue_id");
             return;
         }
 
-        $imgData = @file_get_contents($url);
-        if (!$imgData) {
-            echo json_encode([
-                'success' => false,
-                'message' => "Impossible de télécharger l'image ComicVine"
-            ]);
+        $url      = $_POST['url'];
+        $issueId  = (int) $_POST['issue_id'];
+
+        $ext = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION);
+        if (!$ext) $ext = "jpg";
+
+        $filename = "issue_{$issueId}." . $ext;
+        $path     = __DIR__ . "/../../public/covers/" . $filename;
+
+        $img = file_get_contents($url);
+        if (!$img) {
+            $this->jsonError("Impossible de télécharger l'image ComicVine");
             return;
         }
 
-        $baseDir = __DIR__ . '/../../public/covers';
-        if (!is_dir($baseDir)) {
-            mkdir($baseDir, 0777, true);
-        }
+        file_put_contents($path, $img);
 
-        $fullPath  = $baseDir . "/{$issueId}.jpg";
-        file_put_contents($fullPath, $imgData);
-
-        // Génération thumbnail 400x619
-        $thumbPath = $baseDir . "/{$issueId}_thumb.jpg";
-        $ok = $this->resizeImage($fullPath, $thumbPath, 400, 619);
-
-        if (!$ok) {
-            echo json_encode([
-                'success' => false,
-                'message' => "Impossible de générer le thumbnail"
-            ]);
-            return;
-        }
-
-        echo json_encode([
-            'success' => true,
-            'thumb'   => "/covers/{$issueId}_thumb.jpg"
+        $this->jsonSuccess([
+            "filename" => $filename,
+            "url"      => "/comics_crypt/public/covers/" . $filename
         ]);
     }
 
     /* ============================================================
-       CURL GET générique
+       OUTILS
     ============================================================ */
-    private function curlGet(string $url): ?array
+
+    private function curl(string $url)
     {
         $ch = curl_init($url);
+
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_TIMEOUT        => 10,
-            CURLOPT_USERAGENT      => 'ComicsCrypt/1.0'
+            CURLOPT_USERAGENT      => "ComicsCrypt/1.0",
+            CURLOPT_TIMEOUT        => 10
         ]);
 
         $response = curl_exec($ch);
-        $err      = curl_error($ch);
         curl_close($ch);
-
-        if ($err || !$response) {
-            return null;
-        }
 
         return json_decode($response, true);
     }
 
-    /* ============================================================
-       Redimensionnement image (JPEG only)
-    ============================================================ */
-    private function resizeImage(string $src, string $dest, int $width, int $height): bool
+    private function jsonError(string $msg)
     {
-        $info = getimagesize($src);
-        if (!$info) return false;
+        echo json_encode([
+            "success" => false,
+            "message" => $msg
+        ]);
+    }
 
-        $mime = $info['mime'];
-        $srcW = $info[0];
-        $srcH = $info[1];
-
-        switch ($mime) {
-            case 'image/jpeg':
-            case 'image/jpg':
-                $image = @imagecreatefromjpeg($src);
-                break;
-
-            case 'image/png':
-                $image = @imagecreatefrompng($src);
-                break;
-
-            case 'image/webp':
-                if (!function_exists('imagecreatefromwebp')) return false;
-                $image = @imagecreatefromwebp($src);
-                break;
-
-            default:
-                return false;
-        }
-
-        if (!$image) return false;
-
-        $dst = imagecreatetruecolor($width, $height);
-
-        $white = imagecolorallocate($dst, 255, 255, 255);
-        imagefill($dst, 0, 0, $white);
-
-        imagecopyresampled($dst, $image, 0, 0, 0, 0, $width, $height, $srcW, $srcH);
-
-        $ok = imagejpeg($dst, $dest, 90);
-
-        imagedestroy($image);
-        imagedestroy($dst);
-
-        return $ok;
+    private function jsonSuccess(array $data)
+    {
+        echo json_encode([
+            "success" => true,
+            "data"    => $data
+        ]);
     }
 }

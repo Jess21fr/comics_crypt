@@ -16,10 +16,6 @@ class Series
         );
     }
 
-    /* ============================================================
-       EXISTANTS
-       ============================================================ */
-
     public function existsBySeriesId($series_id)
     {
         $stmt = $this->db->prepare("SELECT id FROM series WHERE series_id = ?");
@@ -31,6 +27,13 @@ class Series
     {
         $stmt = $this->db->prepare("SELECT * FROM series WHERE series_id = ?");
         $stmt->execute([$series_id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getById($id)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM series WHERE id = ?");
+        $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
@@ -49,14 +52,16 @@ class Series
                 notes, tracking_notes, year_began, year_ended,
                 year_began_uncertain, year_ended_uncertain,
                 publication_dates, first_issue, last_issue, issue_count,
-                country, language, publisher, external_link
+                country, language, publisher, external_link,
+                comicvine_volume_id
             ) VALUES (
                 :series_id, :name, :sort_name, :format, :color, :dimensions,
                 :paper_stock, :binding, :publishing_format, :publication_type,
                 :notes, :tracking_notes, :year_began, :year_ended,
                 :year_began_uncertain, :year_ended_uncertain,
                 :publication_dates, :first_issue, :last_issue, :issue_count,
-                :country, :language, :publisher, :external_link
+                :country, :language, :publisher, :external_link,
+                :comicvine_volume_id
             )
         ");
 
@@ -84,17 +89,11 @@ class Series
             ':country'               => $s['country'] ?? null,
             ':language'              => $s['language'] ?? null,
             ':publisher'             => $s['publisher'] ?? null,
-            ':external_link'         => $s['external_link'] ?? null
+            ':external_link'         => $s['external_link'] ?? null,
+            ':comicvine_volume_id'   => $s['comicvine_volume_id'] ?? null
         ]);
     }
 
-    /* ============================================================
-       AJOUTS POUR LA PAGE "GÉRER"
-       ============================================================ */
-
-    /**
-     * Liste complète avec nom de l'éditeur
-     */
     public function getAllWithPublisher()
     {
         $sql = "
@@ -107,19 +106,6 @@ class Series
         return $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Récupère une série via son ID interne
-     */
-    public function getById($id)
-    {
-        $stmt = $this->db->prepare("SELECT * FROM series WHERE id = ?");
-        $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Mise à jour d'une série
-     */
     public function update($data)
     {
         $stmt = $this->db->prepare("
@@ -127,41 +113,43 @@ class Series
                 name = :name,
                 year_began = :year_began,
                 year_ended = :year_ended,
-                notes = :notes
+                notes = :notes,
+                comicvine_volume_id = :comicvine_volume_id
             WHERE id = :id
         ");
 
         return $stmt->execute([
-            ':id'         => $data['id'],
-            ':name'       => $data['name'],
-            ':year_began' => $data['year_began'] ?: null,
-            ':year_ended' => $data['year_ended'] ?: null,
-            ':notes'      => $data['notes'] ?: null
+            ':id'                  => $data['id'],
+            ':name'                => $data['name'],
+            ':year_began'          => $data['year_began'] ?: null,
+            ':year_ended'          => $data['year_ended'] ?: null,
+            ':notes'               => $data['notes'] ?: null,
+            ':comicvine_volume_id' => $data['comicvine_volume_id'] ?: null
         ]);
     }
 
-    /**
-     * Suppression d'une série
-     */
     public function delete($id)
     {
         $stmt = $this->db->prepare("DELETE FROM series WHERE id = ?");
         return $stmt->execute([$id]);
     }
 
+    /**
+     * VERSION CORRIGÉE : renvoie BIEN s.publisher (ID Comics.org)
+     */
     public function getAllWithPublisherAndCountry()
     {
-        $sql = "SELECT 
-                    s.*,
-                    p.name AS publisher_name,
-                    l.nom_court AS country_code
-                FROM series s
-                LEFT JOIN publishers p ON p.publisher_id = s.publisher
-                LEFT JOIN langue l ON l.id_comicsorg = p.country
-                ORDER BY s.name";
+        $sql = "
+            SELECT 
+                s.*,
+                p.name AS publisher_name,
+                l.nom_court AS country_code
+            FROM series s
+            LEFT JOIN publishers p ON p.publisher_id = s.publisher
+            LEFT JOIN langue l ON l.id_comicsorg = p.country
+            ORDER BY s.name
+        ";
 
-        $stmt = $this->db->query($sql);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     }
-
 }
