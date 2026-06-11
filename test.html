@@ -3,427 +3,592 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comics Crypt - Labo API</title>
+    <title>Comics Crypt - Central Registry</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
-        :root {
-            --bg-color: #0a0a0a;
-            --panel-bg: #141414;
-            --text-main: #d3d3d3;
-            --accent-red: #8b0000;
-            --border-color: #333;
-            --terminal-green: #00ff33;
-        }
-        
+        /* ============================================================
+            FEUILLE DE STYLE GOTHIC-TECH COMICS CRYPT
+           ============================================================ */
+        @import url('https://fonts.googleapis.com/css2?family=Jolly+Lodger&family=Roboto:wght@300;400;500;700&display=swap');
+
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Courier New', Courier, monospace;
+            font-family: "Roboto", sans-serif;
+            background: #090909;
+            color: #ddd;
             margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
+            padding-top: 75px;   
+            padding-bottom: 40px; 
         }
 
-        .container {
-            max-width: 950px;
-            width: 100%;
+        h1, h2, h3, h4 {
+            font-family: "Jolly Lodger", cursive;
+            letter-spacing: 1px;
         }
-
-        h1 {
-            color: var(--accent-red);
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            text-align: center;
-            border-bottom: 2px solid var(--accent-red);
-            padding-bottom: 10px;
-            margin-bottom: 30px;
-        }
-
-        h2 {
-            font-size: 1.2rem;
-            color: #fff;
-            margin-top: 0;
-            margin-bottom: 5px;
-        }
-
-        .subtitle {
-            font-size: 0.8rem;
-            color: #666;
-            margin-bottom: 15px;
-            font-style: italic;
-        }
-
-        .panel {
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            padding: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
-        }
-
-        .form-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
-            align-items: center;
-        }
-
-        input[type="text"], input[type="number"] {
-            padding: 10px;
-            background-color: #000;
-            border: 1px solid var(--border-color);
-            color: #fff;
-            font-family: inherit;
-        }
-
-        input[type="text"] { flex: 2; min-width: 150px; }
-        input[type="number"] { flex: 1; min-width: 80px; }
-
-        input:focus {
-            outline: none;
-            border-color: var(--accent-red);
-        }
-
-        .or-separator {
-            font-weight: bold;
-            color: var(--accent-red);
-            font-size: 0.9rem;
-            padding: 0 5px;
-        }
-
-        button {
-            background-color: var(--accent-red);
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-family: inherit;
-            font-weight: bold;
-            text-transform: uppercase;
-            transition: background 0.3s;
-        }
-
-        button:hover { background-color: #a50000; }
-
-        .debug-container {
-            margin-bottom: 15px;
-            background-color: #050505;
-            border: 1px solid #222;
-            padding: 8px;
-            border-radius: 4px;
-        }
-        .debug-label {
-            font-size: 0.75rem;
-            color: #666;
-            text-transform: uppercase;
-            margin-bottom: 4px;
-        }
-        .debug-url {
-            width: 100%;
-            background: transparent;
-            border: none;
-            color: var(--terminal-green);
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 0.8rem;
-            outline: none;
-            box-sizing: border-box;
-        }
-
-        .results {
-            background-color: #000;
-            border: 1px dashed var(--border-color);
-            padding: 15px;
-            min-height: 50px;
-            font-size: 0.9rem;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .comic-card {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #222;
-            align-items: flex-start;
-        }
-        .comic-card:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-        .comic-thumb {
-            width: 100px;
-            height: auto;
-            border: 1px solid var(--accent-red);
-            background-color: #111;
-        }
-        .comic-thumb-large {
-            width: 180px;
-            height: auto;
-            border: 1px solid var(--accent-red);
-        }
-        .comic-info { flex: 1; }
-
-        .highlight { color: var(--accent-red); font-weight: bold; }
         
-        .description-block {
-            margin-top: 10px;
-            color: #aaa;
-            line-height: 1.4;
-            max-height: 150px;
-            overflow-y: auto;
-            background: #080808;
-            padding: 10px;
-            border: 1px solid #151515;
+        h1 { font-size: 3rem; color: #dc3545; text-shadow: 0 0 8px rgba(220, 53, 69, 0.4); }
+        h2 { font-size: 1.8rem; color: #ffc107; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;}
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1050;
+            background: #111 !important;
+            border-bottom: 2px solid #222;
+        }
+
+        .menu-title {
+            font-family: "Jolly Lodger", cursive !important;
+            font-size: 2.2rem;
+            letter-spacing: 1px;
+        }
+
+        /* Formulaires (Gauche) */
+        .form-card {
+            background: #121212;
+            border: 1px solid #222;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .form-label {
+            font-weight: 500;
             font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control {
+            background-color: #1a1a1a;
+            border: 1px solid #2d2d2d;
+            color: #fff;
+            font-size: 0.9rem;
+            padding: 6px 10px;
+        }
+
+        .form-control:focus {
+            background-color: #222;
+            border-color: #dc3545;
+            color: #fff;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.2);
+        }
+
+        .btn-crypt {
+            font-family: "Jolly Lodger", cursive;
+            font-size: 1.3rem;
+            letter-spacing: 0.5px;
+            background-color: #dc3545;
+            border: none;
+            color: #fff;
+            padding: 4px 12px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-crypt:hover {
+            background-color: #b21f2d;
+            color: #fff;
+            box-shadow: 0 0 8px rgba(220, 53, 69, 0.4);
+        }
+
+        /* Zone d'affichage (Droite) */
+        .sticky-display-zone {
+            position: sticky;
+            top: 90px; /* Aligné sous la Navbar fixe */
+            max-height: calc(100vh - 150px);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .query-box-card {
+            background: #111;
+            border: 1px dashed #333;
+            padding: 12px;
+            border-radius: 6px;
+        }
+
+        .result-screen-card {
+            background: #121212;
+            border: 1px solid #252525;
+            border-radius: 6px;
+            padding: 20px;
+            flex-grow: 1;
+            overflow-y: auto;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.6);
+            min-height: 400px;
+        }
+
+        /* Style des tables générées (fancyTable) */
+        .fancySearchRow input {
+            background-color: #1a1a1a !important;
+            border: 1px solid #333 !important;
+            color: #fff !important;
+            margin-bottom: 12px;
+            padding: 6px 12px;
+            font-size: 0.9rem;
+            border-radius: 4px;
+        }
+
+        .table-crypt {
+            font-size: 0.9rem;
+        }
+
+        .table-crypt th {
+            background-color: #181818 !important;
+            color: #ffc107 !important;
+            border-bottom: 2px solid #2d2d2d !important;
+        }
+
+        .table-crypt td {
+            vertical-align: middle;
+            border-bottom: 1px solid #1f1f1f;
+        }
+
+        .thumb-img {
+            height: 50px;
+            width: auto;
+            object-fit: contain;
+            border-radius: 3px;
+            background: #222;
+        }
+
+        .fancytable-nav a {
+            color: #ffc107 !important;
+            text-decoration: none;
+            padding: 3px 10px;
+            margin: 0 2px;
+            border: 1px solid #333;
+            background: #111;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .fancytable-nav .active a {
+            background: #dc3545 !important;
+            color: white !important;
+            border-color: #dc3545;
+        }
+
+        footer {
+            background: #0b0b0b;
+            color: #444;
+            padding: 12px 0;
+            border-top: 1px solid #1c1c1c;
+            margin-top: 40px;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Laboratoire de la Crypte</h1>
-
-    <div class="panel">
-        <h2>1. Rechercher un Éditeur</h2>
-        <div class="form-group">
-            <input type="text" id="pubName" placeholder="Ex: Marvel, DC Comics...">
-            <input type="number" id="pubLimit" placeholder="Limite" value="10">
-            <button onclick="fetchPublishers()">Invoquer</button>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand menu-title text-danger" href="#">COMICS CRYPT</a>
+        <div class="ms-auto d-flex align-items-center">
+            <span class="badge bg-success px-3 py-2 font-monospace">JSONP DIRECT ACTIVE</span>
         </div>
-        <div class="debug-container">
-            <div class="debug-label">Requête brute (Syntaxe Comic Vine) :</div>
-            <input type="text" id="debugPub" class="debug-url" readonly value="Aucune requête envoyée.">
-        </div>
-        <div class="results" id="resPublishers">Les résultats apparaîtront ici...</div>
     </div>
+</nav>
 
-    <div class="panel">
-        <h2>2. Rechercher une Série (Volume)</h2>
-        <div class="form-group">
-            <input type="text" id="seriesName" placeholder="Ex: Avengers, Absolute Batman...">
-            <input type="number" id="seriesYear" placeholder="Année (ex: 1963)">
-            <input type="number" id="seriesLimit" placeholder="Limite" value="10">
-            <button onclick="fetchSeries()">Invoquer</button>
-        </div>
-        <div class="debug-container">
-            <div class="debug-label">Requête brute (Syntaxe Comic Vine) :</div>
-            <input type="text" id="debugSeries" class="debug-url" readonly value="Aucune requête envoyée.">
-        </div>
-        <div class="results" id="resSeries">Les résultats apparaîtront ici...</div>
-    </div>
-
-    <div class="panel">
-        <h2>3. Épisodes d'une Série</h2>
-        <div class="form-group">
-            <input type="text" id="volId" placeholder="ID du Volume (ex: 166619)">
-            <input type="number" id="issuesLimit" placeholder="Limite" value="20">
-            <button onclick="fetchIssues()">Lister Épisodes</button>
-        </div>
-        <div class="debug-container">
-            <div class="debug-label">Requête brute (Syntaxe Comic Vine) :</div>
-            <input type="text" id="debugIssues" class="debug-url" readonly value="Aucune requête envoyée.">
-        </div>
-        <div class="results" id="resIssues">Les résultats apparaîtront ici...</div>
-    </div>
-
-    <div class="panel">
-        <h2>4. Détails d'un Épisode</h2>
-        <div class="subtitle">Remplissez soit l'ID direct, soit le bloc Série + Numéro.</div>
-        <div class="form-group">
-            <input type="text" id="directIssueId" placeholder="ID direct de l'épisode (ex: 1130075)">
-            <span class="or-separator">OU</span>
-            <input type="text" id="singleVolId" placeholder="ID de la série (ex: 166619)">
-            <input type="text" id="issueNum" placeholder="N° d'épisode (ex: 1)">
-            <button onclick="fetchIssueDetail()">Afficher Détails</button>
-        </div>
-        <div class="debug-container">
-            <div class="debug-label">Requête brute (Syntaxe Comic Vine) :</div>
-            <input type="text" id="debugDetail" class="debug-url" readonly value="Aucune requête envoyée.">
-        </div>
-        <div class="results" id="resIssueDetail">Les résultats apparaîtront ici...</div>
-    </div>
-
-</div>
-
-<script>
-    const API_KEY = 'b3dbb0ee3b99331ebcf840f56441b0b87771f0e3';
-    const PROXY_URL = 'https://corsproxy.io/?'; 
-    const BASE_URL = 'https://comicvine.gamespot.com/api';
-
-    // Correction globale de l'encodage pour le proxy
-    async function callAPI(endpoint, params, debugInputId) {
-        let queryParts = [
-            `api_key=${API_KEY}`,
-            `format=json`
-        ];
-
-        for (const [key, value] of Object.entries(params)) {
-            queryParts.push(`${key}=${value}`);
-        }
-
-        const queryString = queryParts.join('&');
-        const targetUrl = `${BASE_URL}${endpoint}?${queryString}`;
+<div class="container-fluid px-4">
+    <div class="row">
         
-        if(debugInputId) {
-            document.getElementById(debugInputId).value = targetUrl;
-        }
+        <div class="col-lg-4 col-md-5">
+            
+            <div class="mb-3">
+                <h1 class="m-0">CRYPT PANEL</h1>
+                <p class="text-muted small">Requêtes séquentielles vers la base Comic Vine</p>
+            </div>
 
-        // CORRECTIF CRUCIAL : encodeURIComponent protège les '&' et les ':' de l'URL cible
-        const fetchUrl = `${PROXY_URL}${encodeURIComponent(targetUrl)}`;
-
-        try {
-            const response = await fetch(fetchUrl);
-            const data = await response.json();
-            return data.results;
-        } catch (error) {
-            console.error("Erreur réseau ou proxy :", error);
-            return null;
-        }
-    }
-
-    // 1. Éditeurs
-    async function fetchPublishers() {
-        const query = document.getElementById('pubName').value;
-        const limit = document.getElementById('pubLimit').value;
-        const resDiv = document.getElementById('resPublishers');
-        resDiv.innerHTML = "Recherche...";
-        
-        const results = await callAPI('/publishers/', { 
-            filter: `name:${query}`,
-            limit: limit 
-        }, 'debugPub');
-        
-        if (results && results.length > 0) {
-            resDiv.innerHTML = results.map(p => {
-                const imgUrl = p.image ? p.image.icon_url : '';
-                return `
-                    <div class="comic-card">
-                        ${imgUrl ? `<img src="${imgUrl}" class="comic-thumb" alt="logo">` : ''}
-                        <div class="comic-info">
-                            <span class="highlight">${p.name}</span> (ID: ${p.id})<br>
-                            <p style="margin:5px 0 0 0;">${p.deck || 'Pas de description.'}</p>
-                        </div>
-                    </div>`;
-            }).join('');
-        } else { resDiv.innerHTML = "Aucun éditeur trouvé."; }
-    }
-
-    // 2. Séries
-    async function fetchSeries() {
-        const query = document.getElementById('seriesName').value;
-        const year = document.getElementById('seriesYear').value.trim();
-        const limit = document.getElementById('seriesLimit').value;
-        const resDiv = document.getElementById('resSeries');
-        resDiv.innerHTML = "Recherche...";
-        
-        let filterString = `name:${query}`;
-        if(year) {
-            filterString += `,start_year:${year}`;
-        }
-
-        const results = await callAPI('/volumes/', { 
-            filter: filterString,
-            limit: limit
-        }, 'debugSeries');
-        
-        if (results && results.length > 0) {
-            resDiv.innerHTML = results.map(v => {
-                const imgUrl = v.image ? v.image.small_url : '';
-                return `
-                    <div class="comic-card">
-                        ${imgUrl ? `<img src="${imgUrl}" class="comic-thumb" alt="cover">` : ''}
-                        <div class="comic-info">
-                            <span class="highlight">${v.name}</span> (ID: ${v.id})<br>
-                            <strong>Début:</strong> ${v.start_year || 'Inconnu'} | 
-                            <strong>Éditeur:</strong> ${v.publisher ? v.publisher.name : 'Inconnu'}<br>
-                            <strong>Épisodes:</strong> ${v.count_of_issues}
-                        </div>
-                    </div>`;
-            }).join('');
-        } else { resDiv.innerHTML = "Aucune série trouvée."; }
-    }
-
-    // 3. Épisodes d'une série
-    async function fetchIssues() {
-        const volId = document.getElementById('volId').value;
-        const limit = document.getElementById('issuesLimit').value;
-        const resDiv = document.getElementById('resIssues');
-        resDiv.innerHTML = "Recherche...";
-        
-        const results = await callAPI('/issues/', { 
-            filter: `volume:${volId}`, 
-            sort: 'issue_number:asc',
-            limit: limit
-        }, 'debugIssues');
-        
-        if (results && results.length > 0) {
-            resDiv.innerHTML = results.map(i => {
-                const imgUrl = i.image ? i.image.icon_url : '';
-                return `
-                    <div class="comic-card" style="margin-bottom:10px; padding-bottom:10px;">
-                        ${imgUrl ? `<img src="${imgUrl}" style="width:50px; height:auto; border:1px solid #333;" alt="cover">` : ''}
-                        <div class="comic-info">
-                            <span class="highlight">Épisode #${i.issue_number}</span> : ${i.name || 'Sans titre'} <br>
-                            <strong>ID unique :</strong> <span style="color: #fff; background: #222; padding: 2px 6px; font-size:0.8rem;">${i.id}</span>
-                        </div>
-                    </div>`;
-            }).join('');
-        } else { resDiv.innerHTML = "Aucun épisode trouvé."; }
-    }
-
-    // 4. Détails d'un épisode (Hybride corrigé)
-    async function fetchIssueDetail() {
-        const directId = document.getElementById('directIssueId').value.trim();
-        const volId = document.getElementById('singleVolId').value.trim();
-        const issueNum = document.getElementById('issueNum').value.trim();
-        const resDiv = document.getElementById('resIssueDetail');
-        
-        resDiv.innerHTML = "Ouverture des archives...";
-        
-        let issue = null;
-
-        if (directId) {
-            // ID Direct -> Endpoint Singulier officiel
-            const result = await callAPI(`/issue/4000-${directId}/`, {}, 'debugDetail');
-            if (result) {
-                issue = result; 
-            }
-        } else if (volId && issueNum) {
-            // Combo Série + Numéro -> Endpoint Pluriel avec filtres
-            const results = await callAPI('/issues/', { filter: `volume:${volId},issue_number:${issueNum}` }, 'debugDetail');
-            if (results && results.length > 0) {
-                issue = results[0]; 
-            }
-        } else {
-            resDiv.innerHTML = "Veuillez remplir les champs.";
-            return;
-        }
-        
-        if (issue) {
-            const descriptionTexte = issue.description || issue.deck || 'Aucun résumé disponible.';
-            const imgUrl = issue.image ? issue.image.medium_url : '';
-
-            resDiv.innerHTML = `
-                <div class="comic-card">
-                    ${imgUrl ? `<img src="${imgUrl}" class="comic-thumb-large" alt="Cover">` : ''}
-                    <div class="comic-info">
-                        <h3 style="margin-top:0; color:#fff;">${issue.name || 'Sans titre'}</h3>
-                        <span class="highlight">Numéro :</span> Épisode #${issue.issue_number}<br>
-                        <span class="highlight">ID Unique :</span> ${issue.id}<br>
-                        <span class="highlight">Date de couverture :</span> ${issue.cover_date || 'Inconnue'}<br>
-                        <span class="highlight">Résumé :</span>
-                        <div class="description-block">${descriptionTexte}</div>
+            <div class="form-card">
+                <h2>1. Recherche Éditeur</h2>
+                <div class="row g-2 align-items-end">
+                    <div class="col">
+                        <label class="form-label">Nom de la firme</label>
+                        <input type="text" id="f1_name" class="form-control" placeholder="Ex: Marvel, DC Comics...">
+                    </div>
+                    <div class="col-auto">
+                        <button onclick="searchPublisher()" class="btn btn-crypt">Exécuter</button>
                     </div>
                 </div>
-            `;
-        } else { 
-            resDiv.innerHTML = "Épisode introuvable. Vérifiez l'ID de la série et le numéro de l'épisode."; 
-        }
+            </div>
+
+            <div class="form-card">
+                <h2>2. Recherche Série (Volume)</h2>
+                <div class="row g-2 align-items-end">
+                    <div class="col">
+                        <label class="form-label">Nom du titre / volume</label>
+                        <input type="text" id="f2_name" class="form-control" placeholder="Ex: Absolute Batman...">
+                    </div>
+                    <div class="col-auto">
+                        <button onclick="searchSeries()" class="btn btn-crypt">Exécuter</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-card">
+                <h2>3. Liste des Épisodes d'une Série</h2>
+                <div class="row g-2 align-items-end">
+                    <div class="col-sm-7">
+                        <label class="form-label">ID Unique du Volume</label>
+                        <input type="text" id="f3_volId" class="form-control" placeholder="Ex: 166619">
+                    </div>
+                    <div class="col-sm-5">
+                        <label class="form-label">Limite Max</label>
+                        <input type="number" id="f3_limit" class="form-control" value="50">
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <button onclick="getSeriesEpisodes()" class="btn btn-crypt w-100">Générer la table des matières</button>
+                </div>
+            </div>
+
+            <div class="form-card">
+                <h2>4. Détails via ID Série + N° Épisode</h2>
+                <div class="row g-2 align-items-end">
+                    <div class="col-sm-7">
+                        <label class="form-label">ID du Volume</label>
+                        <input type="text" id="f4_volId" class="form-control" placeholder="Ex: 4596">
+                    </div>
+                    <div class="col-sm-5">
+                        <label class="form-label">N° Épisode (Cover)</label>
+                        <input type="number" id="f4_num" class="form-control" placeholder="Ex: 1">
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <button onclick="getEpisodeByNumber()" class="btn btn-crypt w-100">Invoquer l'enregistrement</button>
+                </div>
+            </div>
+
+            <div class="form-card">
+                <h2>5. Détails Épisode via son ID Unique</h2>
+                <div class="row g-2 align-items-end">
+                    <div class="col">
+                        <label class="form-label">ID Global de l'épisode (Base)</label>
+                        <input type="text" id="f5_epId" class="form-control" placeholder="Ex: 34415">
+                    </div>
+                    <div class="col-auto">
+                        <button onclick="getEpisodeDetailsDirect()" class="btn btn-crypt">Invoquer</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-card">
+                <h2>6. Image Cover via ID Unique</h2>
+                <div class="row g-2 align-items-end">
+                    <div class="col">
+                        <label class="form-label">ID Global de l'épisode (Base)</label>
+                        <input type="text" id="f6_epId" class="form-control" placeholder="Ex: 34415">
+                    </div>
+                    <div class="col-auto">
+                        <button onclick="getEpisodeCoverDirect()" class="btn btn-crypt">Afficher l'art</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-lg-8 col-md-7 mt-4 mt-md-0">
+            <div class="sticky-display-zone">
+                
+                <div class="query-box-card">
+                    <label class="form-label text-warning m-0 mb-1" style="font-size:0.75rem;">🛰️ URL de la Requête active (Direct Transmit JSONP) :</label>
+                    <input type="text" id="activeQueryDisplay" class="form-control form-control-sm text-info font-monospace bg-black border-dark" readonly value="En attente de commande...">
+                </div>
+
+                <div class="result-screen-card">
+                    <h2 class="text-light" style="font-size:1.5rem; font-family:'Roboto', sans-serif; font-weight:700; letter-spacing:0;">
+                        🖥️ ZONE DE VISUALISATION DES DONNÉES
+                    </h2>
+                    <hr class="border-secondary mt-1 mb-3">
+                    
+                    <div id="displayOutputZone">
+                        <p class="text-secondary italic">Aucune donnée extraite pour le moment. Utilisez l'un des formulaires de gauche pour interroger la crypte.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<footer class="text-center">
+    <small>© 2026 - Comics Crypt Laboratory — Tous droits réservés.</small>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.fancytable/dist/fancyTable.min.js"></script>
+
+<script>
+const BASE_URL = "https://comicvine.gamespot.com/api/";
+const API_KEY = "b3dbb0ee3b99331ebcf840f56441b0b87771f0e3";
+
+// Moteur d'interconnexion Ajax JSONP standardisé
+function runComicVineQuery(endpoint, queryString, outputContainer) {
+    // Nettoyage et injection forcée du format jsonp
+    let cleanQuery = queryString.replace('format=json', '').replace('&&', '&');
+    if (!cleanQuery.includes('format=jsonp')) {
+        cleanQuery += '&format=jsonp';
     }
+
+    const compiledUrl = `${BASE_URL}${endpoint}?${cleanQuery}`;
+    document.getElementById('activeQueryDisplay').value = compiledUrl;
+
+    outputContainer.innerHTML = "<div class='text-warning py-3'>⚡ Récupération des archives en cours via flux direct...</div>";
+
+    return new Promise((resolve) => {
+        $.ajax({
+            url: compiledUrl,
+            dataType: 'jsonp',
+            jsonp: 'json_callback',
+            timeout: 10000,
+            success: function(response) {
+                resolve(response);
+            },
+            error: function(xhr, status, error) {
+                outputContainer.innerHTML = `<div class='alert alert-danger'>💥 Crash de connexion : ${status} (${error || 'Timeout'})</div>`;
+                resolve(null);
+            }
+        });
+    });
+}
+
+// 1. FORMULAIRE 1 : RECHERCHE ÉDITEUR
+async function searchPublisher() {
+    const name = document.getElementById('f1_name').value.trim();
+    const out = document.getElementById('displayOutputZone');
+    if (!name) { out.innerHTML = "<div class='alert alert-warning'>Veuillez entrer un nom d'éditeur.</div>"; return; }
+
+    const data = await runComicVineQuery('publishers/', `api_key=${API_KEY}&filter=name:${encodeURIComponent(name)}`, out);
+    if (!data) return;
+
+    if (data.status_code === 1 && data.results && data.results.length > 0) {
+        let html = `
+            <table id="cryptDataTable" class="table table-dark table-striped table-crypt m-0">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Logo</th>
+                        <th>ID Unique</th>
+                        <th>Nom de l'éditeur</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+        
+        data.results.forEach(pub => {
+            const logoUrl = pub.image ? pub.image.icon_url : '';
+            html += `
+                <tr>
+                    <td><img src="${logoUrl}" class="thumb-img" alt="Logo" onerror="this.src='https://placehold.co/50x50/1a1a1a/666?text=No+Img'"></td>
+                    <td><code class="text-info">${pub.id}</code></td>
+                    <td class="text-warning fw-bold">${pub.name}</td>
+                </tr>`;
+        });
+        html += '</tbody></table>';
+        out.innerHTML = html;
+
+        // Activation instantanée de la fancyTable
+        $("#cryptDataTable").fancyTable({
+            pagination: true, perPage: 10, searchable: true, globalSearch: true, inputPlaceholder: "Filtrer les éditeurs..."
+        });
+    } else {
+        out.innerHTML = "<div class='text-danger'>Aucun éditeur trouvé dans les archives.</div>";
+    }
+}
+
+// 2. FORMULAIRE 2 : RECHERCHE SÉRIE (VOLUME)
+async function searchSeries() {
+    const name = document.getElementById('f2_name').value.trim();
+    const out = document.getElementById('displayOutputZone');
+    if (!name) { out.innerHTML = "<div class='alert alert-warning'>Veuillez entrer un nom de série.</div>"; return; }
+
+    const data = await runComicVineQuery('volumes/', `api_key=${API_KEY}&filter=name:${encodeURIComponent(name)}`, out);
+    if (!data) return;
+
+    if (data.status_code === 1 && data.results && data.results.length > 0) {
+        let html = `
+            <table id="cryptDataTable" class="table table-dark table-striped table-crypt m-0">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Miniature</th>
+                        <th>ID Volume</th>
+                        <th>Nom de la Série</th>
+                        <th>Année Début</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+        
+        data.results.forEach(vol => {
+            const imgUrl = vol.image ? vol.image.icon_url : '';
+            html += `
+                <tr>
+                    <td><img src="${imgUrl}" class="thumb-img" onerror="this.src='https://placehold.co/50x75/1a1a1a/666?text=No+Cover'"></td>
+                    <td><code class="text-info">${vol.id}</code></td>
+                    <td class="text-warning fw-bold">${vol.name}</td>
+                    <td><span class="badge bg-secondary">${vol.start_year || '????'}</span></td>
+                </tr>`;
+        });
+        html += '</tbody></table>';
+        out.innerHTML = html;
+
+        $("#cryptDataTable").fancyTable({
+            pagination: true, perPage: 10, searchable: true, globalSearch: true, inputPlaceholder: "Filtrer les séries..."
+        });
+    } else {
+        out.innerHTML = "<div class='text-danger'>Aucune série correspondante trouvée.</div>";
+    }
+}
+
+// 3. FORMULAIRE 3 : LISTE DES ÉPISODES (VOLUME ID)
+async function getSeriesEpisodes() {
+    const volId = document.getElementById('f3_volId').value.trim();
+    const limit = document.getElementById('f3_limit').value.trim() || 50;
+    const out = document.getElementById('displayOutputZone');
+    if (!volId) { out.innerHTML = "<div class='alert alert-warning'>ID de volume requis.</div>"; return; }
+
+    const data = await runComicVineQuery('issues/', `api_key=${API_KEY}&filter=volume:${volId}&sort=issue_number:asc&limit=${limit}`, out);
+    if (!data) return;
+
+    if (data.status_code === 1 && data.results && data.results.length > 0) {
+        let html = `
+            <table id="cryptDataTable" class="table table-dark table-striped table-crypt m-0">
+                <thead>
+                    <tr>
+                        <th style="width:60px;">N°</th>
+                        <th>ID Unique Épisode</th>
+                        <th>Titre de l'Épisode</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+        
+        data.results.forEach(ep => {
+            html += `
+                <tr>
+                    <td><b class="text-danger">#${ep.issue_number}</b></td>
+                    <td><code class="text-info">${ep.id}</code></td>
+                    <td>${ep.name || '<i class="text-muted">Sans titre enregistré</i>'}</td>
+                </tr>`;
+        });
+        html += '</tbody></table>';
+        out.innerHTML = html;
+
+        $("#cryptDataTable").fancyTable({
+            pagination: true, perPage: 10, searchable: true, globalSearch: true, inputPlaceholder: "Chercher un numéro ou un titre..."
+        });
+    } else {
+        out.innerHTML = "<div class='text-danger'>Aucun épisode trouvé pour cette série (Vérifiez l'ID Volume).</div>";
+    }
+}
+
+// 4. FORMULAIRE 4 : DÉTAIL VIA SÉRIE ID + NUMÉRO ÉPISODE
+async function getEpisodeByNumber() {
+    const volId = document.getElementById('f4_volId').value.trim();
+    const num = document.getElementById('f4_num').value.trim();
+    const out = document.getElementById('displayOutputZone');
+    if (!volId || !num) { out.innerHTML = "<div class='alert alert-warning'>Les deux paramètres sont obligatoires.</div>"; return; }
+
+    const data = await runComicVineQuery('issues/', `api_key=${API_KEY}&filter=volume:${volId},issue_number:${num}`, out);
+    if (!data) return;
+
+    if (data.status_code === 1 && data.results && data.results.length > 0) {
+        const ep = data.results[0];
+        const coverUrl = ep.image ? ep.image.medium_url : '';
+        
+        out.innerHTML = `
+            <div class="row">
+                <div class="col-md-4 text-center mb-3 mb-md-0">
+                    <img src="${coverUrl}" class="img-fluid rounded border border-secondary shadow" style="max-height:350px;" onerror="this.src='https://placehold.co/300x450/1a1a1a/666?text=Pas+de+Cover'">
+                </div>
+                <div class="col-md-8">
+                    <h3 class="text-warning font-monospace" style="font-family:'Roboto'; font-weight:700;">${ep.name || 'Épisode sans titre'}</h3>
+                    <p class="text-danger fs-5 mb-1">Index : Épisode #${ep.issue_number}</p>
+                    <p class="text-muted small">ID unique d'extraction base de données : <code class="text-info">${ep.id}</code></p>
+                    <hr class="border-secondary">
+                    <div class="pe-2 text-light-50" style="max-height:200px; overflow-y:auto; font-size:0.9rem;">
+                        ${ep.description || '<i>Aucun sommaire ou description archivé pour cet épisode.</i>'}
+                    </div>
+                </div>
+            </div>`;
+    } else {
+        out.innerHTML = "<div class='text-danger'>Épisode introuvable. Assurez-vous d'utiliser un vrai numéro de couverture (ex: 1, 12...) et non un ID global.</div>";
+    }
+}
+
+// 5. FORMULAIRE 5 : DÉTAILS ÉPISODE VIA SON ID UNIQUE DIRECT
+async function getEpisodeDetailsDirect() {
+    const epId = document.getElementById('f5_epId').value.trim();
+    const out = document.getElementById('displayOutputZone');
+    if (!epId) { out.innerHTML = "<div class='alert alert-warning'>ID unique requis.</div>"; return; }
+
+    const data = await runComicVineQuery(`issue/4000-${epId}/`, `api_key=${API_KEY}`, out);
+    if (!data) return;
+
+    if (data.status_code === 1 && data.results) {
+        const ep = data.results;
+        const coverUrl = ep.image ? ep.image.medium_url : '';
+        const volumeName = ep.volume ? ep.volume.name : 'Inconnu';
+        
+        out.innerHTML = `
+            <div class="row">
+                <div class="col-md-4 text-center mb-3 mb-md-0">
+                    <img src="${coverUrl}" class="img-fluid rounded border border-secondary shadow" style="max-height:350px;" onerror="this.src='https://placehold.co/300x450/1a1a1a/666?text=Pas+de+Cover'">
+                </div>
+                <div class="col-md-8">
+                    <h3 class="text-warning font-monospace" style="font-family:'Roboto'; font-weight:700;">${ep.name || 'Épisode sans titre'}</h3>
+                    <p class="text-success fs-5 mb-0">Série parent : <b>${volumeName}</b></p>
+                    <p class="text-danger mb-2">Numéro de l'épisode : #${ep.issue_number}</p>
+                    <p class="text-muted small">ID direct ciblé : <code class="text-info">${ep.id}</code></p>
+                    <hr class="border-secondary">
+                    <div class="pe-2" style="max-height:180px; overflow-y:auto; font-size:0.9rem; color:#bbb;">
+                        ${ep.description || '<i>Aucune description enregistrée.</i>'}
+                    </div>
+                </div>
+            </div>`;
+    } else {
+        out.innerHTML = "<div class='text-danger'>Aucun enregistrement ne correspond à cet ID unique.</div>";
+    }
+}
+
+// 6. FORMULAIRE 6 : IMAGE COVER COMPLÈTE VIA ID UNIQUE
+async function getEpisodeCoverDirect() {
+    const epId = document.getElementById('f6_epId').value.trim();
+    const out = document.getElementById('displayOutputZone');
+    if (!epId) { out.innerHTML = "<div class='alert alert-warning'>ID unique de l'épisode requis.</div>"; return; }
+
+    const data = await runComicVineQuery(`issue/4000-${epId}/`, `api_key=${API_KEY}`, out);
+    if (!data) return;
+
+    if (data.status_code === 1 && data.results) {
+        const ep = data.results;
+        // On va chercher l'image en taille supérieure (super_url) ou standard (medium_url)
+        const highResCover = ep.image ? (ep.image.super_url || ep.image.medium_url) : '';
+        
+        if (highResCover) {
+            out.innerHTML = `
+                <div class="text-center">
+                    <h4 class="text-warning mb-2" style="font-family:'Roboto'; font-weight:500; font-size:1.2rem;">
+                        Artwork d'illustration : #${ep.issue_number} — ${ep.name || 'Sans titre'}
+                    </h4>
+                    <div class="p-2 bg-black border border-secondary rounded d-inline-block shadow-lg">
+                        <img src="${highResCover}" class="img-fluid rounded" style="max-height: 550px; width:auto;" alt="Cover Art">
+                    </div>
+                    <div class="mt-2 text-muted small">
+                        Lien direct HD : <a href="${highResCover}" target="_blank" class="text-info font-monospace">${highResCover}</a>
+                    </div>
+                </div>`;
+        } else {
+            out.innerHTML = "<div class='alert alert-info'>Cet épisode est référencé, mais aucun visuel de couverture n'y est rattaché.</div>";
+        }
+    } else {
+        out.innerHTML = "<div class='text-danger'>ID unique non répertorié. Impossible d'extraire la couverture.</div>";
+    }
+}
 </script>
 
 </body>
