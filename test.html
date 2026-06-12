@@ -220,13 +220,22 @@
 
             <div class="form-card">
                 <h2>2. Recherche Série (Volume)</h2>
-                <div class="row g-2 align-items-end">
-                    <div class="col">
+                <div class="row g-2">
+                    <div class="col-12 mb-1">
                         <label class="form-label">Nom du titre / volume</label>
-                        <input type="text" id="f2_name" class="form-control" placeholder="Ex: Absolute Batman...">
+                        <input type="text" id="f2_name" class="form-control" placeholder="Ex: Absolute Batman..." onkeyup="if(event.key === 'Enter') searchSeries()">
                     </div>
-                    <div class="col-auto">
-                        <button onclick="searchSeries()" class="btn btn-crypt">Exécuter</button>
+                    <div class="col-sm-8">
+                        <label class="form-label">Ordre de tri initial</label>
+                        <select id="f2_sort" class="form-control text-white" style="background-color: #1a1a1a; border: 1px solid #2d2d2d; font-size: 0.85rem; padding: 5px 10px;">
+                            <option value="year_desc" selected>Du plus récent au plus ancien (Année)</option>
+                            <option value="year_asc">Du plus ancien au plus récent (Année)</option>
+                            <option value="alpha_asc">Ordre alphabétique (A -> Z)</option>
+                            <option value="alpha_desc">Ordre alphabétique inversé (Z -> A)</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-4 d-flex align-items-end">
+                        <button onclick="searchSeries()" class="btn btn-crypt w-100">Exécuter</button>
                     </div>
                 </div>
             </div>
@@ -332,7 +341,6 @@ const API_KEY = "b3dbb0ee3b99331ebcf840f56441b0b87771f0e3";
 
 // Moteur d'interconnexion Ajax JSONP standardisé
 function runComicVineQuery(endpoint, queryString, outputContainer) {
-    // Nettoyage et injection forcée du format jsonp
     let cleanQuery = queryString.replace('format=json', '').replace('&&', '&');
     if (!cleanQuery.includes('format=jsonp')) {
         cleanQuery += '&format=jsonp';
@@ -393,7 +401,6 @@ async function searchPublisher() {
         html += '</tbody></table>';
         out.innerHTML = html;
 
-        // Activation instantanée de la fancyTable
         $("#cryptDataTable").fancyTable({
             pagination: true, perPage: 10, searchable: true, globalSearch: true, inputPlaceholder: "Filtrer les éditeurs..."
         });
@@ -402,46 +409,121 @@ async function searchPublisher() {
     }
 }
 
-// 2. FORMULAIRE 2 : RECHERCHE SÉRIE (VOLUME)
+// 2. FORMULAIRE 2 : RECHERCHE SÉRIE COMPLÈTE & INTERNATIONALE (REMANIÉ AVEC BOUCLE ET TRIS APPLICATIFS)
 async function searchSeries() {
     const name = document.getElementById('f2_name').value.trim();
+    const sortChoice = document.getElementById('f2_sort').value;
     const out = document.getElementById('displayOutputZone');
     if (!name) { out.innerHTML = "<div class='alert alert-warning'>Veuillez entrer un nom de série.</div>"; return; }
 
-    const data = await runComicVineQuery('volumes/', `api_key=${API_KEY}&filter=name:${encodeURIComponent(name)}`, out);
-    if (!data) return;
+    let allResults = [];
+    let offset = 0;
+    let limit = 100; // Extraction par blocs optimisés de 100
+    let totalResults = 1; 
+    
+    out.innerHTML = `
+        <div class="text-warning py-4 text-center border border-secondary rounded">
+            <div class="spinner-border spinner-border-sm text-danger mb-2" role="status"></div>
+            <div id="cryptProgressText" class="fw-bold text-uppercase small font-monospace">Sondage initial de la crypte Comic Vine...</div>
+        </div>`;
 
-    if (data.status_code === 1 && data.results && data.results.length > 0) {
+    // Conteneur fantôme pour empêcher runComicVineQuery d'écraser notre texte de progression à chaque cycle
+    const shadowContainer = document.createElement('div');
+
+    try {
+        // --- BOUCLE D'EXTRACTION DE TOUTES LES PAGES DE RÉSULTATS ---
+        while (offset < totalResults) {
+            let apiSortParam = "";
+            if (sortChoice === "alpha_asc") apiSortParam = "&sort=name:asc";
+            if (sortChoice === "alpha_desc") apiSortParam = "&sort=name:desc";
+
+            const queryParams = `api_key=${API_KEY}&limit=${limit}&offset=${offset}${apiSortParam}&filter=name:${encodeURIComponent(name)}`;
+            
+            const data = await runComicVineQuery('volumes/', queryParams, shadowContainer);
+            
+            if (!data || data.status_code !== 1) {
+                out.innerHTML = "<div class='alert alert-danger'>💥 Interruption ou corruption du flux d'archives de l'API.</div>";
+                return;
+            }
+
+            totalResults = data.number_of_total_results;
+            allResults = allResults.concat(data.results);
+            
+            const progressIndicator = document.getElementById('cryptProgressText');
+            if (progressIndicator) {
+                progressIndicator.innerHTML = `🔮 Extraction active... <b class="text-danger">${allResults.length}</b> / ${totalResults} volumes indexés.`;
+            }
+
+            offset += limit;
+            if (data.results.length === 0) break; // Sécurité de sortie en cas de blocage
+        }
+
+        if (allResults.length === 0) {
+            out.innerHTML = "<div class='text-danger'>Aucune série correspondante trouvée.</div>";
+            return;
+        }
+
+        // --- MOTEUR DE CLASSEMENT CLIENT-SIDE (Post-Concaténation) ---
+        if (sortChoice === "year_desc") {
+            allResults.sort((a, b) => (parseInt(b.start_year) || 0) - (parseInt(a.start_year) || 0));
+        } else if (sortChoice === "year_asc") {
+            allResults.sort((a, b) => (parseInt(a.start_year) || 0) - (parseInt(b.start_year) || 0));
+        } else if (sortChoice === "alpha_asc") {
+            allResults.sort((a, b) => a.name.localeCompare(b.name));
+        } else if (sortChoice === "alpha_desc") {
+            allResults.sort((a, b) => b.name.localeCompare(a.name));
+        }
+
+        // --- ENCAPSULATION DANS LES TABLEAUX DE LA CRYPTE ---
         let html = `
+            <div class="text-muted small mb-3 d-flex justify-content-between align-items-center">
+                <span>Archives consolidées : <b class="text-warning">${allResults.length} volumes</b></span>
+                <span class="text-info"><i class="fas fa-info-circle me-1"></i> Utilisez la case vide sous 'Année Début' pour filtrer par colonne (ex: tapez 2025)</span>
+            </div>
             <table id="cryptDataTable" class="table table-dark table-striped table-crypt m-0">
                 <thead>
                     <tr>
-                        <th style="width: 80px;">Miniature</th>
-                        <th>ID Volume</th>
+                        <th style="width: 80px;" data-sortable="false">Miniature</th>
+                        <th style="width: 140px;">ID Volume</th>
                         <th>Nom de la Série</th>
-                        <th>Année Début</th>
+                        <th style="width: 160px;">Année Début</th>
                     </tr>
                 </thead>
                 <tbody>`;
         
-        data.results.forEach(vol => {
+        allResults.forEach(vol => {
             const imgUrl = vol.image ? vol.image.icon_url : '';
+            const is2025 = vol.start_year == 2025;
+            
+            // Mise en valeur chromatique de l'événement Comics Crypt / Lancement 2025
+            const rowStyle = is2025 ? 'style="background-color: #261618 !important; border-left: 3px solid #dc3545;"' : '';
+            const badgeClass = is2025 ? 'bg-danger text-white fw-bold border border-warning' : 'bg-secondary';
+
             html += `
-                <tr>
+                <tr ${rowStyle}>
                     <td><img src="${imgUrl}" class="thumb-img" onerror="this.src='https://placehold.co/50x75/1a1a1a/666?text=No+Cover'"></td>
                     <td><code class="text-info">${vol.id}</code></td>
-                    <td class="text-warning fw-bold">${vol.name}</td>
-                    <td><span class="badge bg-secondary">${vol.start_year || '????'}</span></td>
+                    <td>
+                        <span class="text-warning fw-bold">${vol.name}</span>
+                        ${vol.publisher ? `<br><small class="text-muted" style="font-size:0.75rem;"><i class="far fa-building me-1"></i>${vol.publisher.name}</small>` : ''}
+                    </td>
+                    <td><span class="badge ${badgeClass} px-2 py-1">${vol.start_year || '????'}</span></td>
                 </tr>`;
         });
         html += '</tbody></table>';
         out.innerHTML = html;
 
+        // --- ARMEMENT DES FILTRES DE COLONNES (fancyTable multi-inputs) ---
         $("#cryptDataTable").fancyTable({
-            pagination: true, perPage: 10, searchable: true, globalSearch: true, inputPlaceholder: "Filtrer les séries..."
+            pagination: true, 
+            perPage: 15, 
+            searchable: true, 
+            globalSearch: false, 
+            inputPlaceholder: "Filtrer..."
         });
-    } else {
-        out.innerHTML = "<div class='text-danger'>Aucune série correspondante trouvée.</div>";
+
+    } catch (error) {
+        out.innerHTML = `<div class='alert alert-danger'>💥 Échec de l'invocation : ${error.message}</div>`;
     }
 }
 
@@ -566,7 +648,6 @@ async function getEpisodeCoverDirect() {
 
     if (data.status_code === 1 && data.results) {
         const ep = data.results;
-        // On va chercher l'image en taille supérieure (super_url) ou standard (medium_url)
         const highResCover = ep.image ? (ep.image.super_url || ep.image.medium_url) : '';
         
         if (highResCover) {
