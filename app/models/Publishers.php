@@ -42,6 +42,18 @@ class Publishers
     }
 
     /* ============================================================
+       NOUVELLE MÉTHODE MANQUANTE
+    ============================================================ */
+
+    public function getByPublisherId(int $publisherId): ?array
+    {
+        $stmt = $this->db->prepare("SELECT * FROM publishers WHERE publisher_id = ?");
+        $stmt->execute([$publisherId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
+    /* ============================================================
        INSERTION
     ============================================================ */
 

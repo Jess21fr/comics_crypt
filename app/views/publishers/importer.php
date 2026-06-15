@@ -8,7 +8,6 @@ require __DIR__ . '/../layouts/menu.php';
 
     <h1 class="mb-4 text-light">Importer des Éditeurs (ComicVine)</h1>
 
-    <!-- Zone de recherche -->
     <div class="card bg-dark text-light mb-4">
         <div class="card-body">
             <label class="form-label">Nom de l’éditeur :</label>
@@ -19,10 +18,8 @@ require __DIR__ . '/../layouts/menu.php';
         </div>
     </div>
 
-    <!-- Résultats ComicVine -->
     <div id="resultsZone"></div>
 
-    <!-- Boutons d'action -->
     <div id="importZone" class="mt-3" style="display:none;">
         <button id="btnSelectAll" class="btn btn-secondary me-2">Tout sélectionner</button>
         <button id="btnUnselectAll" class="btn btn-secondary me-2">Tout désélectionner</button>
@@ -31,12 +28,10 @@ require __DIR__ . '/../layouts/menu.php';
 
 </div>
 
-<!-- DataTables -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
 
-<!-- Toast -->
 <div id="toastMsg" 
      style="position:fixed;bottom:20px;right:20px;z-index:9999;
             background:#28a745;color:white;padding:12px 20px;
@@ -53,9 +48,6 @@ function showToast(msg, color="#28a745") {
 
 $(function() {
 
-    /* ============================================================
-       RECHERCHE COMICVINE
-    ============================================================ */
     $('#btnSearch').on('click', function() {
         let name = $('#searchName').val().trim();
         if (!name) {
@@ -139,17 +131,9 @@ $(function() {
         );
     });
 
-
-    /* ============================================================
-       TOUT SÉLECTIONNER / TOUT DÉSÉLECTIONNER
-    ============================================================ */
     $('#btnSelectAll').on('click', () => $('.cv-check').prop('checked', true));
     $('#btnUnselectAll').on('click', () => $('.cv-check').prop('checked', false));
 
-
-    /* ============================================================
-       IMPORT MULTIPLE (ENVOI MINIMALISTE)
-    ============================================================ */
     $('#btnImportSelection').on('click', function() {
 
         let rows = [];

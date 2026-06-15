@@ -16,10 +16,6 @@ class Series
         );
     }
 
-    /* ============================================================
-       LECTURE
-    ============================================================ */
-
     public function getAll(): array
     {
         return $this->db->query("
@@ -31,6 +27,14 @@ class Series
     {
         $stmt = $this->db->prepare("SELECT * FROM series WHERE id = ?");
         $stmt->execute([$id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
+    public function getBySeriesId(int $seriesId): ?array
+    {
+        $stmt = $this->db->prepare("SELECT * FROM series WHERE series_id = ?");
+        $stmt->execute([$seriesId]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row ?: null;
     }
@@ -53,9 +57,15 @@ class Series
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /* ============================================================
-       INSERTION
-    ============================================================ */
+    public function getAllWithPublisher(): array
+    {
+        return $this->db->query("
+            SELECT s.*, p.name AS publisher_name
+            FROM series s
+            LEFT JOIN publishers p ON p.publisher_id = s.publisher_id
+            ORDER BY s.name ASC
+        ")->fetchAll(PDO::FETCH_ASSOC);
+    }
 
     public function insertComicVine(array $cv): int
     {
@@ -77,9 +87,50 @@ class Series
         return (int)$this->db->lastInsertId();
     }
 
-    /* ============================================================
-       ACTIVER / DÉSACTIVER
-    ============================================================ */
+    public function insertFromJson(array $cv): int
+    {
+        $stmt = $this->db->prepare("
+            INSERT INTO series
+            (series_id, name, start_year, count_of_issues, publisher_id, logo, actif, last_sync)
+            VALUES (?, ?, ?, ?, ?, ?, 1, NOW())
+        ");
+
+        $stmt->execute([
+            $cv['id'],
+            $cv['name'],
+            $cv['start_year'] ?? null,
+            $cv['count_of_issues'] ?? 0,
+            $cv['publisher']['id'] ?? null,
+            $cv['image']['original_url'] ?? null
+        ]);
+
+        return (int)$this->db->lastInsertId();
+    }
+
+    public function update(array $data): bool
+    {
+        $stmt = $this->db->prepare("
+            UPDATE series
+            SET name = ?, start_year = ?, count_of_issues = ?, publisher_id = ?, logo = ?, actif = ?
+            WHERE id = ?
+        ");
+
+        return $stmt->execute([
+            $data['name'],
+            $data['start_year'],
+            $data['count_of_issues'],
+            $data['publisher_id'],
+            $data['logo'],
+            $data['actif'],
+            $data['id']
+        ]);
+    }
+
+    public function delete(int $id): bool
+    {
+        $stmt = $this->db->prepare("DELETE FROM series WHERE id = ?");
+        return $stmt->execute([$id]);
+    }
 
     public function toggleActif(int $id): int
     {

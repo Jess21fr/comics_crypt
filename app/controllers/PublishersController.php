@@ -1,19 +1,17 @@
 <?php
 
 require_once __DIR__ . '/../models/Publishers.php';
+require_once __DIR__ . '/../services/ComicVineApi.php';
 
 class PublishersController
 {
-    /* ============================================================
-       PAGE IMPORT (importer.php)
-    ============================================================ */
     public function index()
     {
         require __DIR__ . '/../views/publishers/importer.php';
     }
 
     /* ============================================================
-       RECHERCHE COMICVINE (JSONP)
+       RECHERCHE COMICVINE (JSONP LOCAL)
     ============================================================ */
     public function search()
     {
@@ -25,15 +23,38 @@ class PublishersController
             exit;
         }
 
-        $apiKey = "b3dbb0ee3b99331ebcf840f56441b0b87771f0e3";
-        $url = "https://comicvine.gamespot.com/api/publishers/?api_key={$apiKey}&format=jsonp&filter=name:" . urlencode($name);
+        $config = require __DIR__ . '/../Config/config.php';
 
-        echo json_encode(['success' => true, 'url' => $url]);
+        $db = new PDO(
+            "mysql:host={$config['db']['host']};dbname={$config['db']['name']};charset=utf8mb4",
+            $config['db']['user'],
+            $config['db']['pass'],
+            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        );
+
+        $api = new ComicVineApi($db);
+        $data = $api->search($name);
+
+        $results = $data['results'] ?? [];
+
+        // JSONP local
+        $callback = "json_callback";
+        $json = json_encode(['results' => $results], JSON_UNESCAPED_SLASHES);
+
+        $filename = "cv_pub_" . time() . "_" . rand(1000,9999) . ".js";
+        $filepath = __DIR__ . "/../../public/tmp/" . $filename;
+
+        file_put_contents($filepath, $callback . "(" . $json . ");");
+
+        echo json_encode([
+            'success' => true,
+            'url' => $config['base_url'] . "/tmp/" . $filename
+        ]);
         exit;
     }
 
     /* ============================================================
-       IMPORTER UN ÉDITEUR (ComicVine → local)
+       IMPORTER UN ÉDITEUR
     ============================================================ */
     public function import()
     {
@@ -51,7 +72,6 @@ class PublishersController
             exit;
         }
 
-        // Téléchargement du logo HD
         $logoUrl = $_POST['image_super_url'] ?? null;
         $logoFilename = null;
 
@@ -82,9 +102,6 @@ class PublishersController
         exit;
     }
 
-    /* ============================================================
-       PAGE GÉRER (DataTable + modale)
-    ============================================================ */
     public function gerer()
     {
         $model = new Publishers();
@@ -93,9 +110,6 @@ class PublishersController
         require __DIR__ . '/../views/publishers/gerer.php';
     }
 
-    /* ============================================================
-       UPDATE (depuis la modale)
-    ============================================================ */
     public function update()
     {
         header('Content-Type: application/json; charset=utf-8');
@@ -117,11 +131,9 @@ class PublishersController
             exit;
         }
 
-        /* --- Upload logo si fourni --- */
         $logoFilename = $publisher['logo'];
 
         if (!empty($_FILES['logo']['tmp_name'])) {
-
             $ext = pathinfo($_FILES['logo']['name'], PATHINFO_EXTENSION);
             if (!$ext) $ext = "jpg";
 
@@ -131,7 +143,6 @@ class PublishersController
             move_uploaded_file($_FILES['logo']['tmp_name'], $logoPath);
         }
 
-        /* --- Update SQL --- */
         $stmt = $model->db->prepare("
             UPDATE publishers SET
                 name = ?,
@@ -147,9 +158,6 @@ class PublishersController
         exit;
     }
 
-    /* ============================================================
-       ACTIVER / DÉSACTIVER
-    ============================================================ */
     public function toggle()
     {
         header('Content-Type: application/json; charset=utf-8');
@@ -171,9 +179,6 @@ class PublishersController
         exit;
     }
 
-    /* ============================================================
-       SYNC (désactivé)
-    ============================================================ */
     public function sync()
     {
         echo json_encode(['success' => false, 'message' => "Sync désactivé"]);
