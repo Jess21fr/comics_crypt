@@ -7,9 +7,9 @@ class SeriesController
     ============================================================ */
     public function importer()
     {
-        require_once __DIR__ . '/../models/Publisher.php';
-        $publisherModel = new Publisher();
-        $publishers = $publisherModel->getActivePublishers();
+        require_once __DIR__ . '/../models/Publishers.php';
+        $publisherModel = new Publishers(); // ← CORRECTION
+        $publishers = $publisherModel->getAll(); // ← CORRECTION
 
         require __DIR__ . '/../views/series/importer.php';
     }
@@ -67,6 +67,7 @@ class SeriesController
             return;
         }
 
+        // Ton modèle original utilise insertFromJson()
         $ok = $seriesModel->insertFromJson($serie);
 
         echo json_encode([
@@ -112,6 +113,7 @@ class SeriesController
         require_once __DIR__ . '/../models/Series.php';
         $seriesModel = new Series();
 
+        // Ton modèle original utilise getAllWithPublisher()
         $series = $seriesModel->getAllWithPublisher();
 
         require __DIR__ . '/../views/series/gerer.php';

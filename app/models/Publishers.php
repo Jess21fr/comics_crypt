@@ -2,7 +2,7 @@
 
 class Publishers
 {
-    private $db;
+    public PDO $db; // ← doit être public pour update() dans le controller
 
     public function __construct()
     {
@@ -16,31 +16,61 @@ class Publishers
         );
     }
 
-    public function getAll()
+    /* ============================================================
+       LECTURE
+    ============================================================ */
+
+    public function getAll(): array
     {
-        $stmt = $this->db->query("SELECT * FROM publishers ORDER BY name ASC");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $this->db->query("SELECT * FROM publishers ORDER BY name ASC")
+                        ->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function exists($id)
+    public function getById(int $id): ?array
     {
-        $stmt = $this->db->prepare("SELECT id FROM publishers WHERE id = ?");
+        $stmt = $this->db->prepare("SELECT * FROM publishers WHERE id = ?");
         $stmt->execute([$id]);
-        return (bool) $stmt->fetchColumn();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
     }
 
-    public function existsByPublisherId($publisher_id)
+    public function existsByPublisherId(int $publisherId): bool
     {
         $stmt = $this->db->prepare("SELECT id FROM publishers WHERE publisher_id = ?");
-        $stmt->execute([$publisher_id]);
-        return (bool) $stmt->fetchColumn();
+        $stmt->execute([$publisherId]);
+        return (bool)$stmt->fetchColumn();
     }
 
-    public function toggleActif($id)
+    /* ============================================================
+       INSERTION
+    ============================================================ */
+
+    public function insertComicVine(array $cv): int
+    {
+        $stmt = $this->db->prepare("
+            INSERT INTO publishers
+            (publisher_id, name, logo, actif, last_sync)
+            VALUES (?, ?, ?, 1, NOW())
+        ");
+
+        $stmt->execute([
+            $cv['publisher_id'],
+            $cv['name'],
+            $cv['logo']
+        ]);
+
+        return (int)$this->db->lastInsertId();
+    }
+
+    /* ============================================================
+       ACTIVER / DÉSACTIVER
+    ============================================================ */
+
+    public function toggleActif(int $id): int
     {
         $stmt = $this->db->prepare("SELECT actif FROM publishers WHERE id = ?");
         $stmt->execute([$id]);
-        $current = $stmt->fetchColumn();
+        $current = (int)$stmt->fetchColumn();
 
         $new = $current ? 0 : 1;
 
@@ -49,78 +79,4 @@ class Publishers
 
         return $new;
     }
-
-    public function getById($id)
-    {
-        $stmt = $this->db->prepare("SELECT * FROM publishers WHERE id = ?");
-        $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-    public function update($id, $data)
-    {
-        $stmt = $this->db->prepare("
-            UPDATE publishers SET
-                name = ?,
-                country = ?,
-                year_began = ?,
-                year_ended = ?,
-                url = ?,
-                notes = ?
-            WHERE id = ?
-        ");
-
-        $stmt->execute([
-            $data['name'],
-            $data['country'],
-            $data['year_began'],
-            $data['year_ended'],
-            $data['url'],
-            $data['notes'],
-            $id
-        ]);
-    }
-
-    public function insertFromJson($p)
-    {
-        $stmt = $this->db->prepare("
-            INSERT INTO publishers 
-            (name, country, actif, logo, publisher_id, year_began, year_ended, notes, url)
-            VALUES (?, ?, 0, NULL, ?, ?, ?, ?, ?)
-        ");
-
-        $stmt->execute([
-            $p['name'] ?? '',
-            $p['country'] ?? '',
-            $p['id'] ?? null,
-            $p['year_began'] ?? null,
-            $p['year_ended'] ?? null,
-            $p['notes'] ?? null,
-            $p['url'] ?? null
-        ]);
-    }
-
-    /**
-     * VERSION CORRIGÉE : renvoie AUSSI publisher_id
-     */
-    public function getActivePublishers()
-    {
-        $sql = "
-            SELECT 
-                p.id,
-                p.name,
-                p.country,
-                p.publisher_id,      -- IMPORTANT
-                l.nom_court AS country_code
-            FROM publishers p
-            LEFT JOIN langue l 
-                ON l.id_comicsorg = p.country
-            WHERE p.actif = 1
-            ORDER BY p.name ASC
-        ";
-
-        $stmt = $this->db->query($sql);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
 }

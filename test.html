@@ -258,7 +258,7 @@
             </div>
 
             <div class="form-card">
-                <h2>4. Détails via ID Série + N° Épisode</h2>
+                <h2>4. Détails via ID Série + N° ÉPisode</h2>
                 <div class="row g-2 align-items-end">
                     <div class="col-sm-7">
                         <label class="form-label">ID du Volume</label>
@@ -296,6 +296,19 @@
                     </div>
                     <div class="col-auto">
                         <button onclick="getEpisodeCoverDirect()" class="btn btn-crypt">Afficher l'art</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-card">
+                <h2>7. Volume Search + Filtre Client Urban (4788)</h2>
+                <div class="row g-2 align-items-end">
+                    <div class="col">
+                        <label class="form-label">Terme (Payload ultra-léger)</label>
+                        <input type="text" id="f7_query" class="form-control" placeholder="Ex: Batman, Superman..." value="Batman">
+                    </div>
+                    <div class="col-auto">
+                        <button onclick="searchUrbanVolumes()" class="btn btn-crypt">Invoquer</button>
                     </div>
                 </div>
             </div>
@@ -409,7 +422,7 @@ async function searchPublisher() {
     }
 }
 
-// 2. FORMULAIRE 2 : RECHERCHE SÉRIE COMPLÈTE & INTERNATIONALE (REMANIÉ AVEC BOUCLE ET TRIS APPLICATIFS)
+// 2. FORMULAIRE 2 : RECHERCHE SÉRIE COMPLÈTE & INTERNATIONALE
 async function searchSeries() {
     const name = document.getElementById('f2_name').value.trim();
     const sortChoice = document.getElementById('f2_sort').value;
@@ -418,7 +431,7 @@ async function searchSeries() {
 
     let allResults = [];
     let offset = 0;
-    let limit = 100; // Extraction par blocs optimisés de 100
+    let limit = 100; 
     let totalResults = 1; 
     
     out.innerHTML = `
@@ -427,11 +440,9 @@ async function searchSeries() {
             <div id="cryptProgressText" class="fw-bold text-uppercase small font-monospace">Sondage initial de la crypte Comic Vine...</div>
         </div>`;
 
-    // Conteneur fantôme pour empêcher runComicVineQuery d'écraser notre texte de progression à chaque cycle
     const shadowContainer = document.createElement('div');
 
     try {
-        // --- BOUCLE D'EXTRACTION DE TOUTES LES PAGES DE RÉSULTATS ---
         while (offset < totalResults) {
             let apiSortParam = "";
             if (sortChoice === "alpha_asc") apiSortParam = "&sort=name:asc";
@@ -455,7 +466,7 @@ async function searchSeries() {
             }
 
             offset += limit;
-            if (data.results.length === 0) break; // Sécurité de sortie en cas de blocage
+            if (data.results.length === 0) break; 
         }
 
         if (allResults.length === 0) {
@@ -463,7 +474,6 @@ async function searchSeries() {
             return;
         }
 
-        // --- MOTEUR DE CLASSEMENT CLIENT-SIDE (Post-Concaténation) ---
         if (sortChoice === "year_desc") {
             allResults.sort((a, b) => (parseInt(b.start_year) || 0) - (parseInt(a.start_year) || 0));
         } else if (sortChoice === "year_asc") {
@@ -474,11 +484,10 @@ async function searchSeries() {
             allResults.sort((a, b) => b.name.localeCompare(a.name));
         }
 
-        // --- ENCAPSULATION DANS LES TABLEAUX DE LA CRYPTE ---
         let html = `
             <div class="text-muted small mb-3 d-flex justify-content-between align-items-center">
                 <span>Archives consolidées : <b class="text-warning">${allResults.length} volumes</b></span>
-                <span class="text-info"><i class="fas fa-info-circle me-1"></i> Utilisez la case vide sous 'Année Début' pour filtrer par colonne (ex: tapez 2025)</span>
+                <span class="text-info"><i class="fas fa-info-circle me-1"></i> Utilisez la case vide sous 'Année Début' pour filtrer par colonne</span>
             </div>
             <table id="cryptDataTable" class="table table-dark table-striped table-crypt m-0">
                 <thead>
@@ -495,7 +504,6 @@ async function searchSeries() {
             const imgUrl = vol.image ? vol.image.icon_url : '';
             const is2025 = vol.start_year == 2025;
             
-            // Mise en valeur chromatique de l'événement Comics Crypt / Lancement 2025
             const rowStyle = is2025 ? 'style="background-color: #261618 !important; border-left: 3px solid #dc3545;"' : '';
             const badgeClass = is2025 ? 'bg-danger text-white fw-bold border border-warning' : 'bg-secondary';
 
@@ -513,13 +521,8 @@ async function searchSeries() {
         html += '</tbody></table>';
         out.innerHTML = html;
 
-        // --- ARMEMENT DES FILTRES DE COLONNES (fancyTable multi-inputs) ---
         $("#cryptDataTable").fancyTable({
-            pagination: true, 
-            perPage: 15, 
-            searchable: true, 
-            globalSearch: false, 
-            inputPlaceholder: "Filtrer..."
+            pagination: true, perPage: 15, searchable: true, globalSearch: false, inputPlaceholder: "Filtrer..."
         });
 
     } catch (error) {
@@ -527,7 +530,7 @@ async function searchSeries() {
     }
 }
 
-// 3. FORMULAIRE 3 : LISTE DES ÉPISODES (VOLUME ID)
+// 3. FORMULAIRE 3 : LISTE DES ÉPISODES
 async function getSeriesEpisodes() {
     const volId = document.getElementById('f3_volId').value.trim();
     const limit = document.getElementById('f3_limit').value.trim() || 50;
@@ -668,6 +671,103 @@ async function getEpisodeCoverDirect() {
         }
     } else {
         out.innerHTML = "<div class='text-danger'>ID unique non répertorié. Impossible d'extraire la couverture.</div>";
+    }
+}
+
+// 7. FORMULAIRE 7 : LOGIQUE EXTRACTEUR SEARCH OPTIMISÉ + FILTRE APPLICATIF CLIENT (ID 4788)
+async function searchUrbanVolumes() {
+    const query = document.getElementById('f7_query').value.trim();
+    const out = document.getElementById('displayOutputZone');
+    if (!query) { out.innerHTML = "<div class='alert alert-warning'>Veuillez entrer un terme de recherche.</div>"; return; }
+
+    let allResults = [];
+    let page = 1;
+    let limit = 100;
+    let totalResults = 1;
+
+    out.innerHTML = `
+        <div class="text-warning py-4 text-center border border-secondary rounded">
+            <div class="spinner-border spinner-border-sm text-danger mb-2" role="status"></div>
+            <div id="cryptProgressText7" class="fw-bold text-uppercase small font-monospace">Sondage du grimoire d'Urban Comics...</div>
+        </div>`;
+
+    const shadowContainer = document.createElement('div');
+
+    try {
+        // Boucle d'extraction multi-pages sur l'endpoint 'search'
+        while (((page - 1) * limit) < totalResults) {
+            // Utilisation du paramètre de restriction strict 'resources=volume' et allègement drastique avec 'field_list'
+            const queryParams = `api_key=${API_KEY}&resources=volume&query=${encodeURIComponent(query)}&page=${page}&limit=${limit}&field_list=name,image,id,publisher`;
+            
+            const data = await runComicVineQuery('search/', queryParams, shadowContainer);
+            
+            if (!data || data.status_code !== 1) {
+                out.innerHTML = "<div class='alert alert-danger'>💥 Interruption du flux de recherche ciblé.</div>";
+                return;
+            }
+
+            totalResults = data.number_of_total_results;
+            
+            // Interception et filtrage immédiat en mémoire : on ne garde que l'ID 4788 d'Urban Comics
+            const urbanItems = (data.results || []).filter(vol => 
+                vol.publisher && (vol.publisher.id === 4788 || vol.publisher.id === "4788")
+            );
+            
+            allResults = allResults.concat(urbanItems);
+            
+            const progressIndicator = document.getElementById('cryptProgressText7');
+            if (progressIndicator) {
+                progressIndicator.innerHTML = `🔮 Analyse page ${page}... Isolés : <b class="text-danger">${allResults.length}</b> volumes Urban Comics sur ${totalResults} réponses globales.`;
+            }
+
+            if (!data.results || data.results.length === 0) break;
+            page++;
+        }
+
+        if (allResults.length === 0) {
+            out.innerHTML = "<div class='text-danger'>Aucun volume d'Urban Comics (ID 4788) localisé pour cette recherche.</div>";
+            return;
+        }
+
+        // Tri alphabétique par défaut pour le confort visuel dans la crypte
+        allResults.sort((a, b) => a.name.localeCompare(b.name));
+
+        // Génération du tableau final injecté à droite
+        let html = `
+            <div class="text-muted small mb-3 d-flex justify-content-between align-items-center">
+                <span>Dossiers filtrés en local : <b class="text-warning">${allResults.length} volumes Urban Comics</b></span>
+            </div>
+            <table id="cryptDataTable" class="table table-dark table-striped table-crypt m-0">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;" data-sortable="false">Miniature</th>
+                        <th style="width: 140px;">ID Volume</th>
+                        <th>Nom du Volume (Édition Française)</th>
+                        <th style="width: 180px;">Firme Éditrice (ID)</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+        allResults.forEach(vol => {
+            const imgUrl = vol.image ? vol.image.icon_url : '';
+            html += `
+                <tr>
+                    <td><img src="${imgUrl}" class="thumb-img" onerror="this.src='https://placehold.co/50x75/1a1a1a/666?text=No+Cover'"></td>
+                    <td><code class="text-info">${vol.id}</code></td>
+                    <td><span class="text-warning fw-bold">${vol.name}</span></td>
+                    <td><span class="badge bg-danger text-white border border-warning px-2 py-1">${vol.publisher.name} (${vol.publisher.id})</span></td>
+                </tr>`;
+        });
+        html += '</tbody></table>';
+        out.innerHTML = html;
+
+        // Armement de fancyTable pour le filtrage local instantané
+        $("#cryptDataTable").fancyTable({
+            pagination: true, perPage: 15, searchable: true, globalSearch: true, inputPlaceholder: "Filtrer localement dans la sélection..."
+        });
+
+    } catch (error) {
+        out.innerHTML = `<div class='alert alert-danger'>💥 Échec de l'extraction filtrée : ${error.message}</div>`;
     }
 }
 </script>
