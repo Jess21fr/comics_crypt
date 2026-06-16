@@ -14,10 +14,11 @@ class PublishersController
     }
 
     /**
-     * RECHERCHE COMICVINE (Interrogation API + Génération JSONP Local)
+     * RECHERCHE COMICVINE (Sécurisée par le RateLimiter & Flux JSON Direct)
      */
     public function search()
     {
+        // 1. On force le header JSON pur pour le Front-end
         header('Content-Type: application/json; charset=utf-8');
 
         $name = isset($_GET['name']) ? trim($_GET['name']) : '';
@@ -27,7 +28,7 @@ class PublishersController
         }
 
         try {
-            // Correction de la casse du chemin vers config.php
+            // Récupération de la configuration globale
             $config = require __DIR__ . '/../config/config.php';
 
             // Connexion sécurisée à la base de données
@@ -41,33 +42,32 @@ class PublishersController
                 ]
             );
 
-            // Appel au service de l'API Comic Vine
-            $api = new ComicVineApi($db);
-            $data = $api->search($name);
+            // Récupération de la clé API ComicVine dans la config (gère deux syntaxes courantes)
+            $apiKey = $config['comicvine']['api_key'] ?? $config['comicvine_api_key'] ?? '';
+            
+            // Construction de l'URL officielle au format "json" natif
+            $url = "https://comicvine.gamespot.com/api/publishers/?api_key={$apiKey}&filter=name:" . urlencode($name) . "&format=json";
+
+            // Inclusion du Helper de limitation de requêtes
+            require_once __DIR__ . '/../helpers/ApiRateLimiter.php';
+
+            // Exécution de l'appel via le limiter (vérifie l'intervalle de 2s et pose le verrou)
+            $data = ApiRateLimiter::performRequest($db, 'search', $url);
+
+            // Vérification des erreurs renvoyées par l'API ComicVine (ex: clé API invalide)
+            if (isset($data['status_code']) && $data['status_code'] !== 1) {
+                $errorMsg = $data['error'] ?? 'Erreur inconnue provenant de l’API ComicVine.';
+                echo json_encode(['success' => false, 'message' => $errorMsg]);
+                exit;
+            }
 
             $results = $data['results'] ?? [];
 
-            // Préparation du dossier de destination temporaire
-            $tmpDir = __DIR__ . "/../../public/tmp/";
-            if (!is_dir($tmpDir)) {
-                mkdir($tmpDir, 0755, true);
-            }
-
-            // Génération du fichier JSONP Local pour le front-end
-            $callback = "json_callback";
-            $json = json_encode(['results' => $results], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-            
-            $filename = "cv_pub_" . time() . "_" . rand(1000, 9999) . ".js";
-            $filepath = $tmpDir . $filename;
-
-            if (file_put_contents($filepath, $callback . "(" . $json . ");") === false) {
-                throw new Exception("Impossible d'écrire le fichier temporaire de résultats.");
-            }
-
+            // Plus besoin de fichier temporaire physique ! On renvoie les résultats directement en JSON
             echo json_encode([
                 'success' => true,
-                'url' => $config['base_url'] . "/tmp/" . $filename
-            ]);
+                'results' => $results
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
             exit;
 
         } catch (Exception $e) {
@@ -202,7 +202,7 @@ class PublishersController
                 }
             }
 
-            // CORRECTION CRITIQUE : Utilisation de la méthode encapsulée du Modèle
+            // Utilisation de la méthode encapsulée du Modèle
             $model->update($id, $name, $logoFilename, $actif);
 
             echo json_encode(['success' => true]);
