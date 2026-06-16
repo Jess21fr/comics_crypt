@@ -59,6 +59,14 @@ $base = rtrim($config['base_url'], '/');
                         </li>
 
                         <li class="dropdown-submenu">
+                            <a class="dropdown-item dropdown-toggle" href="#">Tomes</a>
+                            <ul class="dropdown-menu dropdown-menu-dark">
+                                <li><a class="dropdown-item" href="<?= $base ?>/index.php?route=gestion_tomes_creer">Création</a></li>
+                                <li><a class="dropdown-item" href="<?= $base ?>/index.php?route=gestion_tomes_importer">Importer</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown-submenu">
                             <a class="dropdown-item dropdown-toggle" href="#">Épisodes</a>
                             <ul class="dropdown-menu dropdown-menu-dark">
                                 <li><a class="dropdown-item" href="<?= $base ?>/index.php?route=gestion_issues_importer">Importer</a></li>
@@ -99,12 +107,11 @@ $base = rtrim($config['base_url'], '/');
                 </div>
 
                 <h6 class="text-light border-bottom border-secondary pb-2 mb-2">Utilisation par Endpoint :</h6>
-                <div id="endpointDetailsZone" class="font-monospace small">
-                    </div>
+                <div id="endpointDetailsZone" class="font-monospace small"></div>
             </div>
             <div class="modal-footer border-secondary">
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
-                <button type="button" class="btn btn-primary btn-sm" id="btnRefreshLimiter"><i class="fa-solid fa-rotate me-1"></i>Actualiser</button>
+                <button type="button" class="btn fiber-primary btn-sm btn-primary" id="btnRefreshLimiter"><i class="fa-solid fa-rotate me-1"></i>Actualiser</button>
             </div>
         </div>
     </div>
@@ -163,7 +170,6 @@ $(function() {
             } else {
                 html = `<ul class="list-group list-group-flush">`;
                 response.details.forEach(item => {
-                    let endpointLimit = 200; // La limite par endpoint dans ApiRateLimiter est fixe à 200/h
                     html += `
                         <li class="list-group-item bg-dark text-light border-secondary d-flex justify-content-between align-items-center px-0">
                             <span><i class="fa-regular fa-folder-open text-info me-2"></i>/${item.endpoint}</span>

@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.3
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Hôte : 127.0.0.1:3306
--- Généré le : mar. 16 juin 2026 à 14:46
--- Version du serveur : 8.4.7
--- Version de PHP : 8.3.28
+-- Hôte : 127.0.0.1
+-- Généré le : mar. 16 juin 2026 à 23:08
+-- Version du serveur : 10.4.32-MariaDB
+-- Version de PHP : 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -27,15 +27,11 @@ SET time_zone = "+00:00";
 -- Structure de la table `api_requests`
 --
 
-DROP TABLE IF EXISTS `api_requests`;
-CREATE TABLE IF NOT EXISTS `api_requests` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `endpoint` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-  `created_at` datetime NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `endpoint` (`endpoint`),
-  KEY `created_at` (`created_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `api_requests` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `endpoint` varchar(100) NOT NULL,
+  `created_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Déchargement des données de la table `api_requests`
@@ -69,7 +65,77 @@ INSERT INTO `api_requests` (`id`, `endpoint`, `created_at`) VALUES
 (25, 'issues', '2026-06-16 12:54:17'),
 (26, 'issues', '2026-06-16 13:59:50'),
 (27, 'issues', '2026-06-16 14:36:41'),
-(28, 'issues', '2026-06-16 16:14:38');
+(28, 'issues', '2026-06-16 16:14:38'),
+(29, 'search', '2026-06-16 17:55:56'),
+(30, 'search', '2026-06-16 17:55:59'),
+(31, 'search', '2026-06-16 17:56:02'),
+(32, 'search', '2026-06-16 17:56:06'),
+(33, 'search', '2026-06-16 17:56:09'),
+(34, 'search', '2026-06-16 17:56:12'),
+(35, 'search', '2026-06-16 17:56:16'),
+(36, 'search', '2026-06-16 17:56:23'),
+(37, 'search', '2026-06-16 17:56:29'),
+(38, 'search', '2026-06-16 17:56:32'),
+(39, 'search', '2026-06-16 17:56:36'),
+(40, 'search', '2026-06-16 17:56:40'),
+(41, 'search', '2026-06-16 17:56:44'),
+(42, 'search', '2026-06-16 17:56:48'),
+(43, 'search', '2026-06-16 17:56:51'),
+(44, 'search', '2026-06-16 17:56:54'),
+(45, 'search', '2026-06-16 17:56:57'),
+(46, 'search', '2026-06-16 17:57:00'),
+(47, 'search', '2026-06-16 17:57:03'),
+(48, 'search', '2026-06-16 17:57:06'),
+(49, 'search', '2026-06-16 17:57:10'),
+(50, 'search', '2026-06-16 17:57:13'),
+(51, 'search', '2026-06-16 17:57:18'),
+(52, 'search', '2026-06-16 17:57:27'),
+(53, 'search', '2026-06-16 17:57:34'),
+(54, 'search', '2026-06-16 17:57:37'),
+(55, 'search', '2026-06-16 17:57:42'),
+(56, 'search', '2026-06-16 17:57:45'),
+(57, 'search', '2026-06-16 17:57:48'),
+(58, 'search', '2026-06-16 17:57:53'),
+(59, 'search', '2026-06-16 17:57:57'),
+(60, 'search', '2026-06-16 17:58:00'),
+(61, 'search', '2026-06-16 17:58:04'),
+(62, 'search', '2026-06-16 17:58:08'),
+(63, 'search', '2026-06-16 17:58:11'),
+(64, 'issues', '2026-06-16 18:16:08'),
+(65, 'issues', '2026-06-16 18:16:11'),
+(66, 'issues', '2026-06-16 18:16:14'),
+(67, 'issues', '2026-06-16 18:16:49'),
+(68, 'issues', '2026-06-16 18:16:54');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `collections`
+--
+
+CREATE TABLE `collections` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `publisher_id` int(10) UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Déchargement des données de la table `collections`
+--
+
+INSERT INTO `collections` (`id`, `name`, `publisher_id`) VALUES
+(1, 'Marvel Events', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `formats`
+--
+
+CREATE TABLE `formats` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `name` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -77,21 +143,17 @@ INSERT INTO `api_requests` (`id`, `endpoint`, `created_at`) VALUES
 -- Structure de la table `issues`
 --
 
-DROP TABLE IF EXISTS `issues`;
-CREATE TABLE IF NOT EXISTS `issues` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `issue_id` int NOT NULL,
-  `series_id` int UNSIGNED NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `issue_number` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+CREATE TABLE `issues` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `issue_id` int(10) UNSIGNED NOT NULL,
+  `series_id` int(10) UNSIGNED NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `issue_number` varchar(50) NOT NULL,
   `cover_date` date DEFAULT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci,
-  `logo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `last_sync` datetime NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `issue_id` (`issue_id`),
-  KEY `series_id` (`series_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `description` text DEFAULT NULL,
+  `logo` varchar(255) DEFAULT NULL,
+  `last_sync` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Déchargement des données de la table `issues`
@@ -155,35 +217,33 @@ INSERT INTO `issues` (`id`, `issue_id`, `series_id`, `name`, `issue_number`, `co
 -- Structure de la table `publishers`
 --
 
-DROP TABLE IF EXISTS `publishers`;
-CREATE TABLE IF NOT EXISTS `publishers` (
-  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
-  `publisher_id` int UNSIGNED NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `logo` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `actif` tinyint(1) NOT NULL DEFAULT '1',
+CREATE TABLE `publishers` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `publisher_id` int(10) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `logo` varchar(255) DEFAULT NULL,
+  `actif` tinyint(1) NOT NULL DEFAULT 1,
   `last_sync` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_publisher_id` (`publisher_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `country` varchar(10) DEFAULT 'US'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Déchargement des données de la table `publishers`
 --
 
-INSERT INTO `publishers` (`id`, `publisher_id`, `name`, `logo`, `actif`, `last_sync`) VALUES
-(1, 31, 'Marvel', 'publisher_31.gif', 1, '2026-06-12 22:30:55'),
-(2, 10, 'DC Comics', 'publisher_10.jpg', 1, '2026-06-12 22:31:19'),
-(3, 4788, 'Urban Comics', 'publisher_4788.jpeg', 1, '2026-06-12 22:32:18'),
-(4, 2245, 'Panini France', 'publisher_2245.jpg', 1, '2026-06-12 22:37:17'),
-(5, 2923, 'Delcourt', 'publisher_2923.jpg', 1, '2026-06-12 22:37:40'),
-(6, 513, 'Image', 'publisher_513.png', 1, '2026-06-12 22:38:27'),
-(7, 364, 'Dark Horse Comics', 'publisher_364.jpg', 1, '2026-06-13 12:10:08'),
-(8, 2932, 'Le Téméraire', 'publisher_2932.png', 1, '2026-06-13 13:17:19'),
-(9, 2579, 'Paperback - Casterman', 'publisher_2579.jpg', 1, '2026-06-13 14:49:43'),
-(10, 1133, 'Semic', 'publisher_1133.jpg', 1, '2026-06-13 14:51:19'),
-(11, 1190, 'IDW Publishing', 'publisher_1190.jpg', 0, '2026-06-16 07:39:19'),
-(12, 708, 'WildStorm Productions', 'publisher_708.jpg', 1, '2026-06-16 09:28:15');
+INSERT INTO `publishers` (`id`, `publisher_id`, `name`, `logo`, `actif`, `last_sync`, `country`) VALUES
+(1, 31, 'Marvel', 'publisher_31.gif', 1, '2026-06-12 22:30:55', 'US'),
+(2, 10, 'DC Comics', 'publisher_10.jpg', 1, '2026-06-12 22:31:19', 'US'),
+(3, 4788, 'Urban Comics', 'publisher_4788.jpeg', 1, '2026-06-12 22:32:18', 'FR'),
+(4, 2245, 'Panini France', 'publisher_2245.jpg', 1, '2026-06-12 22:37:17', 'FR'),
+(5, 2923, 'Delcourt', 'publisher_2923.jpg', 1, '2026-06-12 22:37:40', 'FR'),
+(6, 513, 'Image', 'publisher_513.png', 1, '2026-06-12 22:38:27', 'US'),
+(7, 364, 'Dark Horse Comics', 'publisher_364.jpg', 1, '2026-06-13 12:10:08', 'US'),
+(8, 2932, 'Le Téméraire', 'publisher_2932.png', 1, '2026-06-13 13:17:19', 'FR'),
+(9, 2579, 'Paperback - Casterman', 'publisher_2579.jpg', 1, '2026-06-13 14:49:43', 'FR'),
+(10, 1133, 'Semic', 'publisher_1133.jpg', 1, '2026-06-13 14:51:19', 'FR'),
+(11, 1190, 'IDW Publishing', 'publisher_1190.jpg', 0, '2026-06-16 07:39:19', 'US'),
+(12, 708, 'WildStorm Productions', 'publisher_708.jpg', 1, '2026-06-16 09:28:15', 'US');
 
 -- --------------------------------------------------------
 
@@ -191,20 +251,17 @@ INSERT INTO `publishers` (`id`, `publisher_id`, `name`, `logo`, `actif`, `last_s
 -- Structure de la table `series`
 --
 
-DROP TABLE IF EXISTS `series`;
-CREATE TABLE IF NOT EXISTS `series` (
-  `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
-  `series_id` int UNSIGNED NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `start_year` int DEFAULT NULL,
-  `count_of_issues` int UNSIGNED DEFAULT NULL,
-  `publisher_id` int UNSIGNED NOT NULL,
-  `logo` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `actif` tinyint(1) NOT NULL DEFAULT '1',
-  `last_sync` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_series_id` (`series_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `series` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `series_id` int(10) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `start_year` int(11) DEFAULT NULL,
+  `count_of_issues` int(10) UNSIGNED DEFAULT NULL,
+  `publisher_id` int(10) UNSIGNED NOT NULL,
+  `logo` varchar(255) DEFAULT NULL,
+  `actif` tinyint(1) NOT NULL DEFAULT 1,
+  `last_sync` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Déchargement des données de la table `series`
@@ -215,17 +272,227 @@ INSERT INTO `series` (`id`, `series_id`, `name`, `start_year`, `count_of_issues`
 (5, 4795, 'The Infinity War', 1992, 6, 31, '4795.jpg', 1, '2026-06-15 21:47:57'),
 (6, 5019, 'The Infinity Crusade', 1993, 6, 31, '5019.jpg', 1, '2026-06-15 22:44:52'),
 (7, 161311, 'Justice League Unlimited', 2025, 19, 10, '161311.jpg', 1, '2026-06-16 11:01:37'),
-(8, 164402, 'Superman Unlimited', 2025, 13, 10, '164402.jpg', 1, '2026-06-16 11:01:38');
+(8, 164402, 'Superman Unlimited', 2025, 13, 10, '164402.jpg', 1, '2026-06-16 11:01:38'),
+(9, 18058, 'Detective Comics', 1937, 883, 10, '18058.jpg', 1, '2026-06-16 18:13:48'),
+(10, 18005, 'Action Comics', 1938, 864, 10, '18005.jpg', 1, '2026-06-16 18:13:50'),
+(11, 91098, 'Detective Comics', 2016, 176, 10, '91098.jpg', 1, '2026-06-16 18:13:50'),
+(12, 42563, 'Action Comics', 2011, 57, 10, '42563.jpg', 1, '2026-06-16 18:13:51'),
+(13, 91078, 'Action Comics', 2016, 143, 10, '91078.jpg', 1, '2026-06-16 18:13:52'),
+(14, 42594, 'Detective Comics', 2011, 57, 10, '42594.jpg', 1, '2026-06-16 18:13:53');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `tomes`
+--
+
+CREATE TABLE `tomes` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `series_id` int(10) UNSIGNED DEFAULT NULL,
+  `universe_id` int(10) UNSIGNED DEFAULT NULL,
+  `collection_id` int(10) UNSIGNED DEFAULT NULL,
+  `tome_number` int(11) DEFAULT NULL,
+  `isbn` varchar(20) DEFAULT NULL,
+  `page_count` int(11) DEFAULT NULL,
+  `publication_date` date DEFAULT NULL,
+  `cover_image` varchar(255) DEFAULT NULL,
+  `is_owned` tinyint(1) DEFAULT 0,
+  `is_wanted` tinyint(1) DEFAULT 0,
+  `is_read` tinyint(1) DEFAULT 0,
+  `price_original` decimal(10,2) DEFAULT NULL,
+  `publisher_vf_id` int(10) UNSIGNED DEFAULT NULL,
+  `publisher_vo_id` int(10) UNSIGNED DEFAULT NULL,
+  `format_id` int(10) UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `tome_issues`
+--
+
+CREATE TABLE `tome_issues` (
+  `tome_id` int(10) UNSIGNED NOT NULL,
+  `issue_id` int(10) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `universes`
+--
+
+CREATE TABLE `universes` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Index pour les tables déchargées
+--
+
+--
+-- Index pour la table `api_requests`
+--
+ALTER TABLE `api_requests`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `endpoint` (`endpoint`),
+  ADD KEY `created_at` (`created_at`);
+
+--
+-- Index pour la table `collections`
+--
+ALTER TABLE `collections`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_collections_publisher` (`publisher_id`);
+
+--
+-- Index pour la table `formats`
+--
+ALTER TABLE `formats`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `name` (`name`);
+
+--
+-- Index pour la table `issues`
+--
+ALTER TABLE `issues`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `issue_id` (`issue_id`),
+  ADD KEY `series_id` (`series_id`);
+
+--
+-- Index pour la table `publishers`
+--
+ALTER TABLE `publishers`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_publisher_id` (`publisher_id`);
+
+--
+-- Index pour la table `series`
+--
+ALTER TABLE `series`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_series_id` (`series_id`),
+  ADD KEY `fk_series_publisher` (`publisher_id`);
+
+--
+-- Index pour la table `tomes`
+--
+ALTER TABLE `tomes`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `universe_id` (`universe_id`),
+  ADD KEY `collection_id` (`collection_id`),
+  ADD KEY `series_id` (`series_id`),
+  ADD KEY `fk_tomes_publisher_vf` (`publisher_vf_id`),
+  ADD KEY `fk_tomes_publisher_vo` (`publisher_vo_id`),
+  ADD KEY `fk_tomes_format` (`format_id`);
+
+--
+-- Index pour la table `tome_issues`
+--
+ALTER TABLE `tome_issues`
+  ADD PRIMARY KEY (`tome_id`,`issue_id`),
+  ADD KEY `issue_id` (`issue_id`);
+
+--
+-- Index pour la table `universes`
+--
+ALTER TABLE `universes`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT pour les tables déchargées
+--
+
+--
+-- AUTO_INCREMENT pour la table `api_requests`
+--
+ALTER TABLE `api_requests`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=69;
+
+--
+-- AUTO_INCREMENT pour la table `collections`
+--
+ALTER TABLE `collections`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT pour la table `formats`
+--
+ALTER TABLE `formats`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT pour la table `issues`
+--
+ALTER TABLE `issues`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+
+--
+-- AUTO_INCREMENT pour la table `publishers`
+--
+ALTER TABLE `publishers`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+--
+-- AUTO_INCREMENT pour la table `series`
+--
+ALTER TABLE `series`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+
+--
+-- AUTO_INCREMENT pour la table `tomes`
+--
+ALTER TABLE `tomes`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT pour la table `universes`
+--
+ALTER TABLE `universes`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- Contraintes pour les tables déchargées
 --
 
 --
+-- Contraintes pour la table `collections`
+--
+ALTER TABLE `collections`
+  ADD CONSTRAINT `fk_collections_publisher` FOREIGN KEY (`publisher_id`) REFERENCES `publishers` (`id`) ON DELETE SET NULL;
+
+--
 -- Contraintes pour la table `issues`
 --
 ALTER TABLE `issues`
   ADD CONSTRAINT `issues_ibfk_1` FOREIGN KEY (`series_id`) REFERENCES `series` (`series_id`) ON DELETE CASCADE;
+
+--
+-- Contraintes pour la table `series`
+--
+ALTER TABLE `series`
+  ADD CONSTRAINT `fk_series_publisher` FOREIGN KEY (`publisher_id`) REFERENCES `publishers` (`publisher_id`) ON DELETE CASCADE;
+
+--
+-- Contraintes pour la table `tomes`
+--
+ALTER TABLE `tomes`
+  ADD CONSTRAINT `fk_tomes_collection` FOREIGN KEY (`collection_id`) REFERENCES `collections` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_tomes_format` FOREIGN KEY (`format_id`) REFERENCES `formats` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_tomes_publisher_vf` FOREIGN KEY (`publisher_vf_id`) REFERENCES `publishers` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_tomes_publisher_vo` FOREIGN KEY (`publisher_vo_id`) REFERENCES `publishers` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_tomes_series` FOREIGN KEY (`series_id`) REFERENCES `series` (`series_id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_tomes_universe` FOREIGN KEY (`universe_id`) REFERENCES `universes` (`id`) ON DELETE SET NULL;
+
+--
+-- Contraintes pour la table `tome_issues`
+--
+ALTER TABLE `tome_issues`
+  ADD CONSTRAINT `tome_issues_ibfk_1` FOREIGN KEY (`tome_id`) REFERENCES `tomes` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `tome_issues_ibfk_2` FOREIGN KEY (`issue_id`) REFERENCES `issues` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

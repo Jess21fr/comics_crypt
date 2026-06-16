@@ -5,27 +5,24 @@ $config = require __DIR__ . '/../app/Config/config.php';
 
 $route = $_GET['route'] ?? 'home';
 
-    /* ============================================================
-    AUTOLOAD DES CONTROLLERS
-    ============================================================ */
-    function loadController($name) {
-        require_once __DIR__ . "/../app/controllers/{$name}.php";
-    }
+/* ============================================================
+   AUTOLOAD DES CONTROLLERS
+   ============================================================ */
+function loadController($name) {
+    require_once __DIR__ . "/../app/controllers/{$name}.php";
+}
+
+/* ============================================================
+   ROUTAGE
+   ============================================================ */
+switch ($route) {
 
     /* ============================================================
-    ROUTAGE
-    ============================================================ */
-
-    switch ($route) {
-
-    /* ============================================================
-    ROUTE TECHNIQUE : API RATE LIMITER (AJAX)
-    ============================================================ */
-
+       ROUTE TECHNIQUE : API RATE LIMITER (AJAX)
+       ============================================================ */
     case 'get_limiter_status':
         header('Content-Type: application/json');
         try {
-            // Initialisation locale de la connexion PDO si elle n'est pas globale
             if (!isset($db)) {
                 $dsn = "mysql:host=" . ($config['db_host'] ?? 'localhost') . ";dbname=" . ($config['db_name'] ?? 'comics_crypt') . ";charset=utf8mb4";
                 $db = new PDO($dsn, $config['db_user'] ?? 'root', $config['db_pass'] ?? '', [
@@ -64,49 +61,47 @@ $route = $_GET['route'] ?? 'home';
 
 
     /* ============================================================
-    GESTION > ÉDITEURS (ComicVine ONLY)
-    ============================================================ */
-
-    case 'gestion_editeurs_importer':        // Page importer (import ComicVine)
+       GESTION > ÉDITEURS (ComicVine ONLY)
+       ============================================================ */
+    case 'gestion_editeurs_importer':
         loadController('PublishersController');
         (new PublishersController())->index();
         break;
 
-    case 'gestion_editeurs_search':          // Recherche ComicVine
+    case 'gestion_editeurs_search':
         loadController('PublishersController');
         (new PublishersController())->search();
         break;
 
-    case 'gestion_editeurs_import':          // Importer un éditeur ComicVine
+    case 'gestion_editeurs_import':
         loadController('PublishersController');
         (new PublishersController())->import();
         break;
 
-    case 'gestion_editeurs_gerer':           // Page DataTable (liste + modifier)
+    case 'gestion_editeurs_gerer':
         loadController('PublishersController');
         (new PublishersController())->gerer();
         break;
 
-    case 'gestion_editeurs_update':          // Update depuis la modale
+    case 'gestion_editeurs_update':
         loadController('PublishersController');
         (new PublishersController())->update();
         break;
 
-    case 'gestion_editeurs_toggle':          // Activer / désactiver
+    case 'gestion_editeurs_toggle':
         loadController('PublishersController');
         (new PublishersController())->toggle();
         break;
 
-    case 'gestion_editeurs_sync':            // (optionnel, placeholder)
+    case 'gestion_editeurs_sync':
         loadController('PublishersController');
         (new PublishersController())->sync();
         break;
 
 
     /* ============================================================
-       GESTION > SERIES (refonte ComicVine à venir)
-    ============================================================ */
-
+       GESTION > SERIES
+       ============================================================ */
     case 'gestion_series_importer':
     case 'gestion_series_search':
     case 'gestion_series_import':
@@ -121,11 +116,45 @@ $route = $_GET['route'] ?? 'home';
         break;
 
 
+    /* ============================================================
+       GESTION > TOMES (MANUELS / COMPILATIONS)
+       ============================================================ */
+    case 'gestion_tomes_creer': // Ajouté ici pour matcher ton URL !
+        loadController('TomesController');
+        (new TomesController())->create();
+        break;
+
+    case 'gestion_tomes_save': // Renommé pour rester raccord avec tes habitudes
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            loadController('TomesController');
+            (new TomesController())->save($_POST);
+        } else {
+            header('Location: index.php?route=home');
+        }
+        exit;
+
+    case 'search_issues_ajax':
+        loadController('TomesController');
+        (new TomesController())->searchIssuesAjax($_GET['q'] ?? '');
+        break;
+
+    case 'quick_add_universe':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            loadController('TomesController');
+            (new TomesController())->quickAddUniverse($_POST['name'] ?? '');
+        }
+        exit;
+
+    case 'quick_add_collection':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            loadController('TomesController');
+            (new TomesController())->quickAddCollection($_POST['name'] ?? '');
+        }
+        exit;
 
     /* ============================================================
        GESTION > GAMMES (placeholders)
-    ============================================================ */
-
+       ============================================================ */
     case 'gestion_gammes_importer':
         echo "<h1 class='text-light p-5'>Import Gammes — en construction</h1>";
         break;
@@ -135,11 +164,9 @@ $route = $_GET['route'] ?? 'home';
         break;
 
 
-
     /* ============================================================
        GESTION > UNIVERS (placeholders)
-    ============================================================ */
-
+       ============================================================ */
     case 'gestion_univers_creer':
         echo "<h1 class='text-light p-5'>Créer Univers — en construction</h1>";
         break;
@@ -148,43 +175,39 @@ $route = $_GET['route'] ?? 'home';
         echo "<h1 class='text-light p-5'>Affecter Séries — en construction</h1>";
         break;
 
+
     /* ============================================================
        GESTION > ÉPISODES (ISSUES)
-    ============================================================ */
-
+       ============================================================ */
     case 'gestion_issues_importer': 
-        require_once __DIR__ . '/../app/controllers/IssuesController.php';
+        loadController('IssuesController');
         (new IssuesController())->importer();
         break;
 
     case 'gestion_issues_search':
-        require_once __DIR__ . '/../app/controllers/IssuesController.php';
+        loadController('IssuesController');
         (new IssuesController())->search();
         break;
 
     case 'gestion_issues_import':
-        require_once __DIR__ . '/../app/controllers/IssuesController.php';
+        loadController('IssuesController');
         (new IssuesController())->import();
         break;
 
-    // CORRIGÉ ICI : Ajout du ../ pour remonter au bon dossier
     case 'gestion_issues_list_local':
-        require_once __DIR__ . '/../app/controllers/IssuesController.php';
-        $controller = new IssuesController();
-        $controller->listLocal();
+        loadController('IssuesController');
+        (new IssuesController())->listLocal();
         break;
 
-    // CORRIGÉ ICI : Ajout du ../ pour remonter au bon dossier
     case 'gestion_issues_update':
-        require_once __DIR__ . '/../app/controllers/IssuesController.php';
-        $controller = new IssuesController();
-        $controller->updateSingle();
+        loadController('IssuesController');
+        (new IssuesController())->updateSingle();
         break;
+
 
     /* ============================================================
-       COMICVINE — COVERS HD (RESTE COMPATIBLE)
-    ============================================================ */
-
+       COMICVINE — COVERS HD
+       ============================================================ */
     case 'comicvine_search_issue':
     case 'comicvine_download_cover':
         loadController('ComicVineCoverController');
@@ -192,10 +215,10 @@ $route = $_GET['route'] ?? 'home';
         (new ComicVineCoverController())->$method();
         break;
 
+
     /* ============================================================
        PAGE D’ACCUEIL
-    ============================================================ */
-
+       ============================================================ */
     default:
         require __DIR__ . '/../app/views/layouts/header.php';
         require __DIR__ . '/../app/views/layouts/menu.php';
