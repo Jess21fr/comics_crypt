@@ -67,32 +67,7 @@ require __DIR__ . '/../layouts/menu.php';
 <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
 
 <script>
-const BASE_URL = "https://comicvine.gamespot.com/api/";
-const API_KEY = "b3dbb0ee3b99331ebcf840f56441b0b87771f0e3";
-
-// 🟩 VERSION RESTAURÉE — EXACTEMENT CE QUE ComicVine ATTEND
-function runComicVineQuery(endpoint, queryString) {
-    const compiledUrl =
-        `${BASE_URL}${endpoint}?${queryString}&format=jsonp&json_callback=jsonp_callback`;
-
-    return new Promise((resolve) => {
-        $.ajax({
-            url: compiledUrl,
-            dataType: 'jsonp',
-            jsonpCallback: 'jsonp_callback',
-            timeout: 15000,
-            success: function(response) {
-                resolve(response);
-            },
-            error: function() {
-                resolve(null);
-            }
-        });
-    });
-}
-
 async function searchVolumesDynamic() {
-
     const query = $('#searchQuery').val().trim();
     const publisherId = parseInt($('#publisherId').val(), 10);
 
@@ -107,8 +82,8 @@ async function searchVolumesDynamic() {
         return;
     }
 
-    $('#status').text("Collecte des données ComicVine...");
-    $('#progressZone').html(`<span class="text-warning">Préparation de l'extraction...</span>`);
+    $('#status').text("Extraction sécurisée via le serveur...");
+    $('#progressZone').html(`<span class="text-warning">Requête en cours de traitement par le serveur...</span>`);
 
     let allResults = [];
     let page = 1;
@@ -118,22 +93,24 @@ async function searchVolumesDynamic() {
     try {
         while (((page - 1) * limit) < totalResults) {
 
-            const params =
-                `api_key=${API_KEY}`
-                + `&resources=volume`
-                + `&query=${encodeURIComponent(query)}`
-                + `&page=${page}`
-                + `&limit=${limit}`
-                + `&field_list=name,image,id,publisher,start_year,count_of_issues`;
+            const response = await $.ajax({
+                url: "<?= $config['base_url'] ?>/index.php?route=gestion_series_search",
+                type: "POST",
+                data: {
+                    query: query,
+                    publisher_id: publisherId,
+                    page: page
+                },
+                dataType: "json"
+            });
 
-            const data = await runComicVineQuery("search/", params);
-
-            if (!data || data.status_code !== 1) {
-                $('#status').text("Erreur API ComicVine.");
-                console.log("RAW:", data);
+            if (!response || !response.success || response.results.status_code !== 1) {
+                const msg = response ? response.message : "Erreur serveur.";
+                $('#status').html(`<span class="text-danger fw-bold">🛑 Interrompu : ${msg}</span>`);
                 return;
             }
 
+            const data = response.results;
             totalResults = data.number_of_total_results || 0;
 
             const filtered = (data.results || []).filter(v =>
@@ -145,7 +122,7 @@ async function searchVolumesDynamic() {
             const totalPages = totalResults > 0 ? Math.ceil(totalResults / limit) : page;
 
             $('#progressZone').html(`
-                <span class="text-warning">📡 Page ${page} / ${totalPages}</span><br>
+                <span class="text-warning">📡 Page ${page} / ${totalPages} (Vérifiée par le Limiter)</span><br>
                 <span class="text-info">🎯 Séries correspondant à l'éditeur : <b>${allResults.length}</b></span><br>
                 <span class="text-secondary">🔍 Résultats bruts analysés : ${Math.min(page * limit, totalResults)} / ${totalResults}</span>
             `);
@@ -159,11 +136,11 @@ async function searchVolumesDynamic() {
             return;
         }
 
-        $('#status').text("Extraction terminée.");
+        $('#status').text("Extraction terminée avec succès.");
         displayResults(allResults);
 
     } catch (e) {
-        $('#status').text("Erreur JavaScript : " + e.message);
+        $('#status').text("Erreur de liaison avec le serveur.");
         console.error(e);
     }
 }
@@ -171,7 +148,6 @@ async function searchVolumesDynamic() {
 let seriesTable = null;
 
 function displayResults(list) {
-
     $('#seriesTable').show();
     $('#btnImportSelected').show();
 
@@ -183,7 +159,6 @@ function displayResults(list) {
     tbody.empty();
 
     list.forEach(v => {
-
         const imgLight = v.image
             ? (v.image.icon_url || v.image.thumb_url || v.image.medium_url)
             : "https://placehold.co/80x120/1a1a1a/666?text=No+Img";
@@ -227,7 +202,6 @@ function displayResults(list) {
 }
 
 function importSelectedSeries() {
-
     const selected = $('.chkImport:checked');
 
     if (selected.length === 0) {
@@ -241,7 +215,6 @@ function importSelectedSeries() {
     const total = selected.length;
 
     selected.each(function() {
-
         const fd = new FormData();
         fd.append("series_id", $(this).data('series_id'));
         fd.append("name", $(this).data('name'));
@@ -259,7 +232,6 @@ function importSelectedSeries() {
             dataType: "json",
             success: function(resp) {
                 done++;
-
                 if (done === total) {
                     $('#status').html("<span class='text-success fw-bold'>Votre sélection a bien été importée.</span>");
                 }
@@ -271,12 +243,10 @@ function importSelectedSeries() {
                 }
             }
         });
-
     });
 }
 
 $(document).ready(function() {
-
     $('#searchBtn').on('click', function() {
         searchVolumesDynamic();
     });

@@ -30,7 +30,7 @@ require __DIR__ . '/../layouts/menu.php';
                         : "https://placehold.co/60x90/1a1a1a/666?text=No+Img";
 
                     $publisherLogo = !empty($s['publisher_logo'])
-                        ? $config['base_url'] . "/publishers/" . $s['publisher_logo']
+                        ? $config['base_url'] . "/logos/" . $s['publisher_logo']
                         : null;
 
                     $labelEditeur = !empty($s['publisher_name'])
@@ -59,7 +59,6 @@ require __DIR__ . '/../layouts/menu.php';
                     <td><?= $actif ?></td>
 
                     <td class="text-center">
-
                         <button class="btn btn-sm btn-outline-info edit-series"
                                 data-id="<?= $s['id'] ?>"
                                 title="Modifier">
@@ -71,7 +70,6 @@ require __DIR__ . '/../layouts/menu.php';
                                 title="Supprimer">
                             <i class="fa-solid fa-trash"></i>
                         </button>
-
                     </td>
                 </tr>
             <?php endforeach; ?>
@@ -80,7 +78,6 @@ require __DIR__ . '/../layouts/menu.php';
 
 </div>
 
-<!-- 🟩 MODALE ÉDITION -->
 <div class="modal fade" id="editSeriesModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark text-light">
@@ -88,7 +85,6 @@ require __DIR__ . '/../layouts/menu.php';
                 <h5 class="modal-title">Modifier la Série</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-
             <div class="modal-body" id="editSeriesModalBody">
                 Chargement...
             </div>
@@ -96,7 +92,6 @@ require __DIR__ . '/../layouts/menu.php';
     </div>
 </div>
 
-<!-- 🟩 MODALE SUPPRESSION -->
 <div class="modal fade" id="deleteSeriesModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content bg-dark text-light">
@@ -104,12 +99,10 @@ require __DIR__ . '/../layouts/menu.php';
                 <h5 class="modal-title">Supprimer la Série</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-
             <div class="modal-body">
                 <p>Voulez-vous vraiment supprimer cette série ?</p>
                 <input type="hidden" id="deleteSeriesId">
             </div>
-
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
                 <button type="button" class="btn btn-danger" id="confirmDeleteSeries">Supprimer</button>
@@ -129,9 +122,9 @@ $(function() {
         }
     });
 
-    $('.edit-series').on('click', function() {
+    // Événement délégué pour l'édition (gère le changement de page DataTables)
+    $('#seriesTable').on('click', '.edit-series', function() {
         let id = $(this).data('id');
-
         $('#editSeriesModalBody').html("Chargement...");
 
         $.get("index.php?route=gestion_series_edit&id=" + encodeURIComponent(id),
@@ -142,7 +135,8 @@ $(function() {
         );
     });
 
-    $('.delete-series').on('click', function() {
+    // Événement délégué pour la suppression (gère le changement de page DataTables)
+    $('#seriesTable').on('click', '.delete-series', function() {
         let id = $(this).data('id');
         $('#deleteSeriesId').val(id);
         new bootstrap.Modal(document.getElementById('deleteSeriesModal')).show();

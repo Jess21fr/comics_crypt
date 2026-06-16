@@ -10,13 +10,28 @@ class ComicVineApi
 
     /**
      * Constructeur de l'API Comic Vine
+     * MODIFICATION : $db devient optionnel (?PDO) pour permettre l'appel statique sécurisé
      */
-    public function __construct(PDO $db)
+    public function __construct(?PDO $db = null)
     {
-        $this->db = $db;
+        if ($db === null) {
+            // Si le contrôleur appelle l'API sans lui passer PDO, on s'auto-connecte proprement
+            $config = require __DIR__ . '/../Config/config.php';
+            $this->db = new PDO(
+                "mysql:host={$config['db']['host']};dbname={$config['db']['name']};charset={$config['db']['charset']}",
+                $config['db']['user'],
+                $config['db']['pass'],
+                [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+                ]
+            );
+        } else {
+            $this->db = $db;
+        }
 
-        // Correction de la casse du chemin d'inclusion
-        $config = require __DIR__ . '/../config/config.php';
+        // On charge la clé API globale
+        $config = require __DIR__ . '/../Config/config.php';
         $this->apiKey = $config['comicvine_api_key'];
     }
 
@@ -25,10 +40,26 @@ class ComicVineApi
      */
     private function request(string $endpoint, string $params): array
     {
-        // CORRECTION CRITIQUE : Remplacement de jsonp par json brut pour permettre l'analyse côté PHP
+        // Remplacement de jsonp par json brut pour permettre l'analyse côté PHP
         $url = $this->baseUrl . $endpoint . "/?api_key=" . $this->apiKey . "&format=json&" . $params;
 
         return ApiRateLimiter::performRequest($this->db, $endpoint, $url);
+    }
+
+    /**
+     * 🟢 AJOUT CRITIQUE POUR LE CONTROLLER
+     * Permet d'effectuer des appels dynamiques (avec pagination, filtres complexes)
+     * tout en passant sagement au crible de ton ApiRateLimiter !
+     */
+    public static function call(string $endpoint, array $params = []): array
+    {
+        $instance = new self();
+        $endpoint = trim($endpoint, '/');
+        
+        // On transforme le tableau de filtres en chaîne de paramètres GET
+        $queryString = http_build_query($params);
+        
+        return $instance->request($endpoint, $queryString);
     }
 
     /* ============================================================
@@ -36,8 +67,7 @@ class ComicVineApi
     ============================================================ */
 
     /**
-     * AJOUT CRITIQUE : Passerelle requise par PublishersController
-     * Permet d'éviter l'erreur fatale "Call to undefined method"
+     * Passerelle requise par PublishersController
      */
     public function search(string $name): array
     {
@@ -49,7 +79,6 @@ class ComicVineApi
      */
     public function getPublishersByName(string $name): array
     {
-        // Syntaxe Comic Vine : /publishers/?filter=name:{nom}
         return $this->request("publishers", "filter=name:" . urlencode($name));
     }
 

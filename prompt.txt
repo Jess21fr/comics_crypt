@@ -1,0 +1,66 @@
+Bonjour Gemini,
+
+J'ai commencé à développer l'application web Comics Crypt pour gérer ma collection de comics.
+
+-CONCEPT / OBJECTIF
+
+Je collectionne les comics en version française et US et je voudrais avoir une application qui me classe mes comics dans l'ordre de lecture qui peut être très différent de l'ordre de parution (rééditions, flashbacks, anthologies…)
+
+-- INFOS :
+Ces BD peuvent contenir des séries différentes ou une série unique parfois avec des épisodes qui se suivent (ex. Superman #1 à 4) ou non (ex. Batman #10, 12, 14 et 16)
+Parmi ces BD il y a des versions "kiosque" et des versions "librairies"
+J'ai des épisodes VO/US -> 1 tome = 1 épisode
+J'ai des Tomes VO/US regroupant x épisodes US
+J'ai des Tomes VF regroupant x épisodes US traduit
+J'ai déjà stocké beaucoup d'infos dans un tableau google sheet, il faudra trouver comment réintégrer ces données
+Je veux pouvoir rentrer des tomes que je ne possède pas afin de pouvoir faire des recherches de prix depuis une page dédiée
+Possibilité d'ajout par lecture de code-barres avec un smartphone
+
+-- CONTRAINTES :
+
+Pour chaque item 'Tome' on peut avoir :
+- un éditeur VF (Urban Comics, Marvel, Delcourt, Bliss…) si versions VF
+- un éditeur VO (Marvel, DC, Image, Valiant…)
+- une gamme ou collection (ex. Vertigo pour DC, Energon Universe ou Wildstorm pour Image…) ces collections regroupent plusieurs séries qui peuvent partager un même univers ou non
+- un univers (regroupement de séries - ex: Univers "Batman" regroupera les séries 'Batman', 'Detective Comics", 'Batgirl', 'Nightwing'...)
+- un format (Nomad, Marvel Pocket, 100% Marvel, couverture souple…)
+- un nom de série (qui peut être différent du nom de série US)
+- un numéro de tome
+- un nom de tome (ex. {nom de série} - Tome {numéro de tome} - {nom de tome}), si applicable
+- une image de couverture et éventuellement dos de couverture
+- avoir un numéro ISBN
+- avoir un nombre de pages
+- avoir une date de publication
+- pouvoir lister les épisodes VO qu'il contient -> indispensable pour le tri chronologique de lecture
+- dans ma collection (oui/non)
+- recherché (oui/non)
+- lu (oui/non)
+- prix éditeur (pour comparer au prix occasion si recherches)
+
+-- MISE EN OEUVRE :
+
+-Complication : une série peut avoir plusieurs "reboots" ex. Avengers (1963-1996) va du #1 à 402, Avengers (1996-1997) va du #1 à 12, Avengers (1998-2004) va du #1 au #84... Il existe donc plusieurs #1 pour une même "série", il faut donc considérer des époques / des volumes en plus des séries. J'ai besoin de tes conseils pour savoir comment appréhender cette variable.
+-Complication N°1 : il se peut que je possède plusieurs fois les mêmes épisodes VO/US dans des tomes VF différents, il faut prévoir le cas !
+-Complication N°2 : les épisodes US que je possède en version fascicule ne seront reliés à aucun tome, il faut pourtant trouver une façon de les intégrer dans la chronologie !
+
+-> C'est cette table 'issues' qui permettra de classer mes BD dans l'ordre de lecture : la BD à lire en premier est donc celle qui contient l'épisode le plus ancien toutes séries / éditeurs confondus.
+
+-INTERFACE
+
+--BACK-OFFICE :
+j'imagine quelque chose de très graphique : des champs textes pour tout ce qui n'est pas dépendant d'une autre table, des menus déroulants avec la possibilité d'ajouter une nouvelle entrée pour les infos qui découlent d'une autre table
+j'aimerais pouvoir intégrer des fonction de scrapping pour récupérer des données en automatique et ne pas avoir à les saisir à la main (site panini comics fr, site urban comics, site officiel DC, site officiel DC…)
+
+--FRONT-OFFICE :
+j'hésite :
+- entre un affichage basique qui donnera une liste de lecture en ordre chronologique avec des filtres "par éditeur", "par univers", "par série"...
+- un affichage plus "graphique" avec une sorte de frise chronologique avec scroll horizontal infini (gauche = passé, droite = futur) et la possibilité d'atteindre une année donnée, un mois donné avec des calendriers customs
+
+
+Il reste à faire complètement :
+- identification de l'utilisateur pour protéger mes données -> table users à créer
+- la gestion des gammes (= collections)
+- la gestion des 'univers'
+- la création des Tomes (FR ou US) : nom, série, éditeur, date de publication, isbn, cover...
+- l'affectation des épisodes aux Tomes (avec possibilité de doublons : 1 épisode peut apparaître dans plusieurs recueils)
+- la création de la chronologie de continuité -> frise chronologique avec issues dans l'ordre de publication et infos sur le tome contenant l'épisode

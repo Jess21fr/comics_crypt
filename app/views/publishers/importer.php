@@ -6,7 +6,7 @@ require __DIR__ . '/../layouts/menu.php';
 
 <div class="container mt-5 pt-4">
 
-    <h1 class="mb-4 text-light">Importer des Éditeurs (ComicVine)</h1>
+    <h1 class="mb-4 text-light">Importer des Éditeurs</h1>
 
     <div class="card bg-dark text-light mb-4">
         <div class="card-body">

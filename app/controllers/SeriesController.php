@@ -2,252 +2,164 @@
 
 class SeriesController
 {
+    private Series $model;
+
+    public function __construct()
+    {
+        require_once __DIR__ . '/../models/Series.php';
+        $this->model = new Series();
+    }
+
+    // Affichage de la table de gestion principale
+    public function gerer()
+    {
+        // On récupère toutes les séries avec le nom de l'éditeur (et son logo s'il y est)
+        $series = $this->model->getAllWithPublisher();
+        
+        // On charge la vue
+        require __DIR__ . '/../views/series/gerer.php';
+    }
+
+    // Affichage du formulaire d'importation ComicVine
     public function importer()
     {
+        // Chargement du modèle Publishers (avec S)
         require_once __DIR__ . '/../models/Publishers.php';
-        $publisherModel = new Publishers();
-        $publishers = $publisherModel->getAll();
+        $pubModel = new Publishers(); // 🎯 CORRIGÉ : Instanciation de la classe avec un S
+        $publishers = $pubModel->getAll();
 
         require __DIR__ . '/../views/series/importer.php';
     }
 
-    public function preview()
+    // 🔐 Proxy de recherche sécurisé relié au Limiter
+    public function search()
     {
         header('Content-Type: application/json');
 
-        if (empty($_POST['json'])) {
-            echo json_encode(['success' => false, 'message' => "JSON manquant."]);
+        $query = trim($_POST['query'] ?? '');
+        $publisherId = intval($_POST['publisher_id'] ?? 0);
+        $page = intval($_POST['page'] ?? 1);
+
+        if (empty($query) || empty($publisherId)) {
+            echo json_encode(['success' => false, 'message' => "Paramètres manquants."]);
             return;
         }
 
-        $json = trim($_POST['json']);
-        $data = json_decode($json, true);
+        require_once __DIR__ . '/../services/ComicVineApi.php';
 
-        if (!$data) {
-            echo json_encode(['success' => false, 'message' => "JSON invalide."]);
+        $params = [
+            'resources'  => 'volume',
+            'query'      => $query,
+            'page'       => $page,
+            'limit'      => 100,
+            'field_list' => 'name,image,id,publisher,start_year,count_of_issues'
+        ];
+
+        // L'appel passe au crible de ton gestionnaire de quotas
+        $apiResult = ComicVineApi::call('search/', $params);
+
+        if (!$apiResult) {
+            echo json_encode([
+                'success' => false, 
+                'message' => "Erreur API ComicVine ou quota horaire dépassé !"
+            ]);
             return;
         }
 
         echo json_encode([
             'success' => true,
-            'series'  => array_slice($data, 0, 200)
+            'results' => $apiResult
         ]);
     }
 
-    public function ajax_add()
-    {
-        header('Content-Type: application/json');
-
-        if (empty($_POST['serie'])) {
-            echo json_encode(['success' => false, 'message' => "Aucune série reçue."]);
-            return;
-        }
-
-        $serie = json_decode($_POST['serie'], true);
-
-        if (!$serie) {
-            echo json_encode(['success' => false, 'message' => "Format série invalide."]);
-            return;
-        }
-
-        require_once __DIR__ . '/../models/Series.php';
-        $seriesModel = new Series();
-
-        if ($seriesModel->existsBySeriesId($serie['id'])) {
-            echo json_encode(['success' => false, 'message' => "Série déjà importée."]);
-            return;
-        }
-
-        $ok = $seriesModel->insertFromJson($serie);
-
-        echo json_encode([
-            'success' => $ok,
-            'message' => $ok ? "Série importée avec succès." : "Erreur lors de l'import."
-        ]);
-    }
-
-    public function ajax_info()
-    {
-        header('Content-Type: application/json');
-
-        if (empty($_POST['series_id'])) {
-            echo json_encode(['success' => false, 'message' => "ID manquant."]);
-            return;
-        }
-
-        $series_id = intval($_POST['series_id']);
-
-        require_once __DIR__ . '/../models/Series.php';
-        $seriesModel = new Series();
-        $serie = $seriesModel->getBySeriesId($series_id);
-
-        if (!$serie) {
-            echo json_encode(['success' => false, 'message' => "Série introuvable."]);
-            return;
-        }
-
-        echo json_encode([
-            'success' => true,
-            'serie'   => $serie
-        ]);
-    }
-
-    public function gerer()
-    {
-        require_once __DIR__ . '/../models/Series.php';
-        $seriesModel = new Series();
-        $series = $seriesModel->getAllWithPublisher();
-
-        require __DIR__ . '/../views/series/gerer.php';
-    }
-
+    // Réception du formulaire de modification asynchrone (Modale)
     public function edit()
     {
-        if (empty($_GET['id'])) {
-            echo "ID manquant.";
-            return;
-        }
-
-        $id = intval($_GET['id']);
-
-        require_once __DIR__ . '/../models/Series.php';
-        require_once __DIR__ . '/../models/Publishers.php';
-
-        $seriesModel    = new Series();
-        $publisherModel = new Publishers();
-
-        $serie = $seriesModel->getById($id);
+        $id = intval($_GET['id'] ?? 0);
+        $serie = $this->model->getById($id);
 
         if (!$serie) {
             echo "Série introuvable.";
             return;
         }
 
-        $publisher       = $publisherModel->getByPublisherId($serie['publisher_id']);
-        $publishersActifs = []; // plus utilisé dans le formulaire actuel, laissé vide volontairement
+        // On récupère l'éditeur lié pour afficher sa fiche dans la modale
+        require_once __DIR__ . '/../models/Publishers.php';
+        $pubModel = new Publishers(); // 🎯 CORRIGÉ AUSSI ICI : Avec un S
+        $publisher = $pubModel->getByPublisherId($serie['publisher_id']);
 
+        // Renvoie uniquement le fragment HTML du formulaire
         require __DIR__ . '/../views/series/edit_form.php';
     }
 
+    // Traitement du POST de mise à jour (Nom, année, statut actif, nouveau logo)
     public function update()
     {
         header('Content-Type: application/json');
 
-        if (empty($_POST['id'])) {
-            echo json_encode(['success' => false, 'message' => "ID manquant."]);
-            return;
-        }
+        $id = intval($_POST['id'] ?? 0);
+        $serie = $this->model->getById($id);
 
-        $id = (int)$_POST['id'];
-
-        require_once __DIR__ . '/../models/Series.php';
-        $seriesModel = new Series();
-
-        $serie = $seriesModel->getById($id);
         if (!$serie) {
-            echo json_encode(['success' => false, 'message' => "Série introuvable."]);
+            echo json_encode(['success' => false, 'message' => 'Série inexistante.']);
             return;
         }
 
-        // actif (checkbox)
-        $_POST['actif'] = isset($_POST['actif']) ? 1 : 0;
+        $name = trim($_POST['name'] ?? '');
+        $startYear = !empty($_POST['start_year']) ? intval($_POST['start_year']) : null;
+        $countOfIssues = isset($_POST['count_of_issues']) ? intval($_POST['count_of_issues']) : 0;
+        $publisherId = intval($_POST['publisher_id'] ?? 0);
+        $actif = isset($_POST['actif']) ? 1 : 0;
+        $logoName = $serie['logo'];
 
-        // gestion du logo : si nouveau fichier → on écrase, sinon on garde l’ancien
-        $logoFinal = $serie['logo'];
+        // Gestion de l'upload d'un nouveau fichier local
+        if (isset($_FILES['new_logo']) && $_FILES['new_logo']['error'] === UPLOAD_ERR_OK) {
+            $ext = pathinfo($_FILES['new_logo']['name'], PATHINFO_EXTENSION);
+            $newName = $serie['series_id'] . '.' . strtolower($ext);
+            $targetPath = __DIR__ . '/../../public/series/' . $newName;
 
-        if (!empty($_FILES['new_logo']) && $_FILES['new_logo']['error'] === UPLOAD_ERR_OK) {
-            $tmpName = $_FILES['new_logo']['tmp_name'];
-
-            // on garde le même nom de fichier si déjà présent, sinon {series_id}.jpg
-            $fileName = $logoFinal ?: ($serie['series_id'] . '.jpg');
-
-            $targetPath = __DIR__ . '/../../public/series/' . $fileName;
-
-            @move_uploaded_file($tmpName, $targetPath);
-
-            $logoFinal = $fileName;
+            if (move_uploaded_file($_FILES['new_logo']['tmp_name'], $targetPath)) {
+                $logoName = $newName;
+            }
         }
 
-        $_POST['logo'] = $logoFinal;
-
-        $ok = $seriesModel->update($_POST);
-
-        echo json_encode([
-            'success' => (bool)$ok,
-            'message' => $ok ? "Série mise à jour." : "Erreur lors de la mise à jour."
+        $success = $this->model->update([
+            'id' => $id,
+            'name' => $name,
+            'start_year' => $startYear,
+            'count_of_issues' => $countOfIssues,
+            'publisher_id' => $publisherId,
+            'logo' => $logoName,
+            'actif' => $actif
         ]);
+
+        echo json_encode(['success' => $success, 'message' => $success ? '' : 'Erreur lors de la mise à jour.']);
     }
 
+    // Suppression d'une série
     public function delete()
     {
         header('Content-Type: application/json');
+        $id = intval($_POST['id'] ?? 0);
 
-        if (empty($_POST['id'])) {
-            echo json_encode(['success' => false, 'message' => "ID manquant."]);
-            return;
-        }
+        $success = $this->model->delete($id);
 
-        $id = intval($_POST['id']);
-
-        require_once __DIR__ . '/../models/Series.php';
-        $seriesModel = new Series();
-
-        $ok = $seriesModel->delete($id);
-
-        echo json_encode([
-            'success' => $ok,
-            'message' => $ok ? "Série supprimée." : "Erreur lors de la suppression."
-        ]);
+        echo json_encode(['success' => $success]);
     }
 
+    // Reçoit les données de l'import d'une série en AJAX (Chantier 2)
     public function import()
     {
         header('Content-Type: application/json');
 
-        if (empty($_POST['series_id'])) {
-            echo json_encode(['success' => false, 'message' => "ID série manquant."]);
+        if (empty($_POST['series_id']) || empty($_POST['name'])) {
+            echo json_encode(['success' => false, 'message' => 'Données incomplètes.']);
             return;
         }
 
-        $series_id       = intval($_POST['series_id']);
-        $name            = $_POST['name'] ?? '';
-        $start_year      = $_POST['start_year'] ?? null;
-        $count_of_issues = $_POST['count_of_issues'] ?? 0;
-        $publisher_id    = $_POST['publisher_id'] ?? null;
-        $original_url    = $_POST['original_url'] ?? '';
+        // On passe le relais au modèle qui télécharge l'image et gère la BDD
+        $success = $this->model->importFromApi($_POST);
 
-        require_once __DIR__ . '/../models/Series.php';
-        $seriesModel = new Series();
-
-        if ($seriesModel->existsBySeriesId($series_id)) {
-            echo json_encode(['success' => false, 'message' => "Série déjà importée."]);
-            return;
-        }
-
-        $localName = $series_id . ".jpg";
-        $localPath = __DIR__ . "/../../public/series/" . $localName;
-
-        if ($original_url) {
-            $img = @file_get_contents($original_url);
-            if ($img !== false) {
-                @file_put_contents($localPath, $img);
-            }
-        }
-
-        $cv = [
-            'series_id'       => $series_id,
-            'name'            => $name,
-            'start_year'      => $start_year,
-            'count_of_issues' => $count_of_issues,
-            'publisher_id'    => $publisher_id,
-            'logo'            => $localName
-        ];
-
-        $ok = $seriesModel->insertComicVine($cv);
-
-        echo json_encode([
-            'success' => (bool)$ok,
-            'message' => $ok ? "Série importée." : "Erreur lors de l'import."
-        ]);
+        echo json_encode(['success' => $success]);
     }
 }

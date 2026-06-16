@@ -2,127 +2,119 @@
 
 class Series
 {
-    public PDO $db;
+    private PDO $db;
 
     public function __construct()
     {
+        // On remonte d'un niveau (de app/models vers app) pour charger la configuration
         $config = require __DIR__ . '/../Config/config.php';
-
+        
+        // Connexion en ciblant précisément le sous-tableau ['db'] de ton fichier config.php
         $this->db = new PDO(
-            "mysql:host={$config['db']['host']};dbname={$config['db']['name']};charset=utf8mb4",
+            "mysql:host={$config['db']['host']};dbname={$config['db']['name']};charset={$config['db']['charset']}",
             $config['db']['user'],
             $config['db']['pass'],
-            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+            [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+            ]
         );
     }
 
-    public function getAll(): array
+    // Sélectionne les séries et le logo de leur éditeur pour la table de gestion
+    public function getAllWithPublisher(): array
     {
-        return $this->db->query("
-            SELECT * FROM series ORDER BY name ASC
-        ")->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $this->db->query("
+            SELECT s.*, p.name AS publisher_name, p.logo AS publisher_logo 
+            FROM series s
+            LEFT JOIN publishers p ON s.publisher_id = p.publisher_id
+            ORDER BY s.name ASC
+        ");
+        return $stmt->fetchAll();
     }
 
     public function getById(int $id): ?array
     {
         $stmt = $this->db->prepare("SELECT * FROM series WHERE id = ?");
         $stmt->execute([$id]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ?: null;
+        return $stmt->fetch() ?: null;
     }
 
     public function getBySeriesId(int $seriesId): ?array
     {
         $stmt = $this->db->prepare("SELECT * FROM series WHERE series_id = ?");
         $stmt->execute([$seriesId]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ?: null;
+        return $stmt->fetch() ?: null;
     }
 
-    public function existsBySeriesId(int $seriesId): bool
+    // Gère le téléchargement de l'image de l'API + l'écriture propre en BDD (Chantier 2)
+    public function importFromApi(array $data): bool
     {
-        $stmt = $this->db->prepare("SELECT id FROM series WHERE series_id = ?");
-        $stmt->execute([$seriesId]);
-        return (bool)$stmt->fetchColumn();
-    }
+        $seriesId = intval($data['series_id']);
+        $logoName = null;
 
-    public function getAllByPublisher(int $publisherId): array
-    {
+        // Si l'API fournit une image, on la rapatrie localement sur notre serveur
+        if (!empty($data['original_url'])) {
+            $ext = pathinfo(parse_url($data['original_url'], PHP_URL_PATH), PATHINFO_EXTENSION) ?: 'jpg';
+            $logoName = $seriesId . '.' . strtolower($ext);
+            $targetPath = __DIR__ . '/../../public/series/' . $logoName;
+
+            // Création du dossier public/series s'il n'existe pas encore
+            if (!is_dir(dirname($targetPath))) {
+                mkdir(dirname($targetPath), 0755, true);
+            }
+
+            // Téléchargement sécurisé du flux de l'image
+            $imgContent = @file_get_contents($data['original_url']);
+            if ($imgContent !== false) {
+                file_put_contents($targetPath, $imgContent);
+            } else {
+                $logoName = null; // Évite d'enregistrer un nom de fichier si le téléchargement échoue
+            }
+        }
+
+        // Insertion ou mise à jour automatique si la série existe déjà (sécurité ON DUPLICATE KEY)
         $stmt = $this->db->prepare("
-            SELECT * FROM series
-            WHERE publisher_id = ?
-            ORDER BY start_year ASC, name ASC
-        ");
-        $stmt->execute([$publisherId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    public function getAllWithPublisher(): array
-    {
-        return $this->db->query("
-            SELECT s.*, p.name AS publisher_name
-            FROM series s
-            LEFT JOIN publishers p ON p.publisher_id = s.publisher_id
-            ORDER BY s.name ASC
-        ")->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    public function insertComicVine(array $cv): int
-    {
-        $stmt = $this->db->prepare("
-            INSERT INTO series
-            (series_id, name, start_year, count_of_issues, publisher_id, logo, actif, last_sync)
-            VALUES (?, ?, ?, ?, ?, ?, 1, NOW())
+            INSERT INTO series (series_id, name, start_year, count_of_issues, publisher_id, logo, actif, last_sync)
+            VALUES (:series_id, :name, :start_year, :count_of_issues, :publisher_id, :logo, 1, NOW())
+            ON DUPLICATE KEY UPDATE
+                name = VALUES(name),
+                start_year = VALUES(start_year),
+                count_of_issues = VALUES(count_of_issues),
+                logo = IFNULL(VALUES(logo), logo),
+                last_sync = NOW()
         ");
 
-        $stmt->execute([
-            $cv['series_id'],
-            $cv['name'],
-            $cv['start_year'],
-            $cv['count_of_issues'],
-            $cv['publisher_id'],
-            $cv['logo']
+        return $stmt->execute([
+            'series_id'       => $seriesId,
+            'name'            => trim($data['name']),
+            'start_year'      => !empty($data['start_year']) ? intval($data['start_year']) : null,
+            'count_of_issues' => intval($data['count_of_issues']),
+            'publisher_id'    => intval($data['publisher_id']),
+            'logo'            => $logoName
         ]);
-
-        return (int)$this->db->lastInsertId();
-    }
-
-    public function insertFromJson(array $cv): int
-    {
-        $stmt = $this->db->prepare("
-            INSERT INTO series
-            (series_id, name, start_year, count_of_issues, publisher_id, logo, actif, last_sync)
-            VALUES (?, ?, ?, ?, ?, ?, 1, NOW())
-        ");
-
-        $stmt->execute([
-            $cv['id'],
-            $cv['name'],
-            $cv['start_year'] ?? null,
-            $cv['count_of_issues'] ?? 0,
-            $cv['publisher']['id'] ?? null,
-            $cv['image']['original_url'] ?? null
-        ]);
-
-        return (int)$this->db->lastInsertId();
     }
 
     public function update(array $data): bool
     {
         $stmt = $this->db->prepare("
-            UPDATE series
-            SET name = ?, start_year = ?, count_of_issues = ?, publisher_id = ?, logo = ?, actif = ?
-            WHERE id = ?
+            UPDATE series 
+            SET name = :name, 
+                start_year = :start_year, 
+                count_of_issues = :count_of_issues, 
+                publisher_id = :publisher_id, 
+                logo = :logo, 
+                actif = :actif 
+            WHERE id = :id
         ");
-
         return $stmt->execute([
-            $data['name'],
-            $data['start_year'],
-            $data['count_of_issues'],
-            $data['publisher_id'],
-            $data['logo'],
-            $data['actif'],
-            $data['id']
+            'id'              => $data['id'],
+            'name'            => $data['name'],
+            'start_year'      => $data['start_year'],
+            'count_of_issues' => $data['count_of_issues'],
+            'publisher_id'    => $data['publisher_id'],
+            'logo'            => $data['logo'],
+            'actif'           => $data['actif']
         ]);
     }
 
@@ -130,19 +122,5 @@ class Series
     {
         $stmt = $this->db->prepare("DELETE FROM series WHERE id = ?");
         return $stmt->execute([$id]);
-    }
-
-    public function toggleActif(int $id): int
-    {
-        $stmt = $this->db->prepare("SELECT actif FROM series WHERE id = ?");
-        $stmt->execute([$id]);
-        $current = (int)$stmt->fetchColumn();
-
-        $new = $current ? 0 : 1;
-
-        $stmt = $this->db->prepare("UPDATE series SET actif = ? WHERE id = ?");
-        $stmt->execute([$new, $id]);
-
-        return $new;
     }
 }

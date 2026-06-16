@@ -19,6 +19,51 @@ $route = $_GET['route'] ?? 'home';
     switch ($route) {
 
     /* ============================================================
+    ROUTE TECHNIQUE : API RATE LIMITER (AJAX)
+    ============================================================ */
+
+    case 'get_limiter_status':
+        header('Content-Type: application/json');
+        try {
+            // Initialisation locale de la connexion PDO si elle n'est pas globale
+            if (!isset($db)) {
+                $dsn = "mysql:host=" . ($config['db_host'] ?? 'localhost') . ";dbname=" . ($config['db_name'] ?? 'comics_crypt') . ";charset=utf8mb4";
+                $db = new PDO($dsn, $config['db_user'] ?? 'root', $config['db_pass'] ?? '', [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+                ]);
+            }
+
+            // 1. Nombre total de requêtes sur 1 heure glissante
+            $stmtTotal = $db->query("
+                SELECT COUNT(*) 
+                FROM api_requests 
+                WHERE created_at >= (NOW() - INTERVAL 1 HOUR)
+            ");
+            $totalPerHour = (int)$stmtTotal->fetchColumn();
+
+            // 2. Détail par endpoint pour alimenter la modale
+            $stmtDetail = $db->query("
+                SELECT endpoint, COUNT(*) as used 
+                FROM api_requests 
+                WHERE created_at >= (NOW() - INTERVAL 1 HOUR)
+                GROUP BY endpoint
+            ");
+            $details = $stmtDetail->fetchAll();
+
+            echo json_encode([
+                'success' => true,
+                'total_used' => $totalPerHour,
+                'limit' => 200,
+                'details' => $details
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+        exit;
+
+
+    /* ============================================================
     GESTION > ÉDITEURS (ComicVine ONLY)
     ============================================================ */
 
@@ -27,7 +72,7 @@ $route = $_GET['route'] ?? 'home';
         (new PublishersController())->index();
         break;
 
-    case 'gestion_editeurs_search':          // Recherche ComicVine JSONP
+    case 'gestion_editeurs_search':          // Recherche ComicVine
         loadController('PublishersController');
         (new PublishersController())->search();
         break;
@@ -103,26 +148,38 @@ $route = $_GET['route'] ?? 'home';
         echo "<h1 class='text-light p-5'>Affecter Séries — en construction</h1>";
         break;
 
-
-
     /* ============================================================
-       GESTION > ÉPISODES (ISSUES) — refonte ComicVine à venir
+       GESTION > ÉPISODES (ISSUES)
     ============================================================ */
 
-    case 'gestion_issues_importer':
-    case 'gestion_issues_search':
-    case 'gestion_issues_import':
-    case 'gestion_issues_sync':
-    case 'gestion_issues_gerer':
-    case 'gestion_issues_edit':
-    case 'gestion_issues_update':
-    case 'gestion_issues_delete':
-        loadController('IssuesController');
-        $method = str_replace('gestion_issues_', '', $route);
-        (new IssuesController())->$method();
+    case 'gestion_issues_importer': 
+        require_once __DIR__ . '/../app/controllers/IssuesController.php';
+        (new IssuesController())->importer();
         break;
 
+    case 'gestion_issues_search':
+        require_once __DIR__ . '/../app/controllers/IssuesController.php';
+        (new IssuesController())->search();
+        break;
 
+    case 'gestion_issues_import':
+        require_once __DIR__ . '/../app/controllers/IssuesController.php';
+        (new IssuesController())->import();
+        break;
+
+    // CORRIGÉ ICI : Ajout du ../ pour remonter au bon dossier
+    case 'gestion_issues_list_local':
+        require_once __DIR__ . '/../app/controllers/IssuesController.php';
+        $controller = new IssuesController();
+        $controller->listLocal();
+        break;
+
+    // CORRIGÉ ICI : Ajout du ../ pour remonter au bon dossier
+    case 'gestion_issues_update':
+        require_once __DIR__ . '/../app/controllers/IssuesController.php';
+        $controller = new IssuesController();
+        $controller->updateSingle();
+        break;
 
     /* ============================================================
        COMICVINE — COVERS HD (RESTE COMPATIBLE)
@@ -134,8 +191,6 @@ $route = $_GET['route'] ?? 'home';
         $method = str_replace('comicvine_', '', $route);
         (new ComicVineCoverController())->$method();
         break;
-
-
 
     /* ============================================================
        PAGE D’ACCUEIL
