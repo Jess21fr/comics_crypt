@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : mar. 16 juin 2026 à 23:08
+-- Généré le : dim. 28 juin 2026 à 22:11
 -- Version du serveur : 10.4.32-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -105,7 +105,22 @@ INSERT INTO `api_requests` (`id`, `endpoint`, `created_at`) VALUES
 (65, 'issues', '2026-06-16 18:16:11'),
 (66, 'issues', '2026-06-16 18:16:14'),
 (67, 'issues', '2026-06-16 18:16:49'),
-(68, 'issues', '2026-06-16 18:16:54');
+(68, 'issues', '2026-06-16 18:16:54'),
+(69, 'search', '2026-06-18 21:43:51'),
+(70, 'search', '2026-06-18 21:58:49'),
+(71, 'search', '2026-06-18 21:58:52'),
+(72, 'search', '2026-06-18 21:58:55'),
+(73, 'search', '2026-06-18 21:58:58'),
+(74, 'search', '2026-06-20 19:07:40'),
+(75, 'search', '2026-06-27 15:13:36'),
+(76, 'search', '2026-06-27 15:13:39'),
+(77, 'search', '2026-06-27 15:13:46'),
+(78, 'search', '2026-06-27 15:13:50'),
+(79, 'search', '2026-06-27 15:13:53'),
+(80, 'issues', '2026-06-27 15:14:38'),
+(81, 'search', '2026-06-28 14:29:21'),
+(82, 'search', '2026-06-28 15:32:07'),
+(83, 'search', '2026-06-28 15:32:27');
 
 -- --------------------------------------------------------
 
@@ -210,6 +225,24 @@ INSERT INTO `issues` (`id`, `issue_id`, `series_id`, `name`, `issue_number`, `co
 (48, 1159697, 164402, 'Fallen Son', '11', '2026-05-01', 'THE FINAL MOMENTS OF JON KENT!What’s worse than a fifth-dimensional imp?A fourth dimensional demon!Jon Kent faces off against his greatest archenemy, a terrifying time-bending foe who’s attacking him years before they’ve ever met! Witness the final moments of Jon Kent, Superman.Also in this issue: Superboy?!No. Really?Wait. What?!Yeah. You’d better not miss this one.Call your retailer now.Reserve your copy now.Don’t wait.Go. Call. Now!', '1159697.jpg', '2026-06-16 14:37:00'),
 (49, 1163061, 164402, 'Besides Myself', '12', '2026-06-01', 'REIGN OF THE SUPERBOYS HEATS UP!Little (super) boy lost!Tomorrow Man has a shocking surprise for Lois Lane. His name is Jon Kent, and he\'s just a little boy.The Reign of the Superboys continues!(And, possibly...the reign of a super...monkey?)', '1163061.jpg', '2026-06-16 14:37:00'),
 (50, 1167193, 164402, 'Primal Fears', '13', '2026-07-01', 'REIGN OF THE SUPERBOYS CONTINUES!One word should fill you with fear: Metropolis! Two syllables should have you running for your lives! Beware the wrath of Beppo! The power of a Kryptonian with the mind of an angry primal beast!Can Tomorrow Man and Superboy even hope to stop the Mad Mammal of Might...Super Monkey?!The reign of the Superboys continues...as Jon Kent\'s life takes a surprising turn that super-fans won\'t want to miss!', '1167193.jpg', '2026-06-16 14:37:00');
+INSERT INTO `issues` (`id`, `issue_id`, `series_id`, `name`, `issue_number`, `cover_date`, `description`, `logo`, `last_sync`) VALUES
+(51, 550420, 94290, NULL, '1', '2016-09-30', 'The God of Whispers has spread an omnipresent paranoia to every corner of the kingdom of Zhal; his spies hide in every hall spreading mistrust and fear. Adam Osidis, a dying knight from a disgraced house, must choose between joining a hopeless band of magic users in their desperate bid to free their world of the evil God, or accepting his promise to give Adam everything his heart desires.Writer RICK REMENDER reteams with collaborators JEROME OPEÑA (Uncanny X-Force, Fear Agent) and MATT HOLLINGSWORTH (TOKYO GHOST, WYTCHES) to take you on a hard road through the strange fantasy world of Zhal. All men have surrendered their freedom for fear. Now, one last free man must choose.List of covers and their creators:CoverNameCreator(s)Sidebar LocationACover AJerome Opeña &amp; Matt Hollingsworth1BCover BTony Moore2CCover CAndrew Robinson3DBlank Sketch Cover DNone4', '550420.jpg', '2026-06-27 15:14:50'),
+(52, 555569, 94290, NULL, '2', '2016-10-31', 'Now face to face with the God of Whispers, enslaver of worlds, all that stands between Adam Osidis and his heart’s every desire is one simple compromise, to bend the knee.List of covers and their creators:CoverNameCreator(s)Sidebar LocationACover AJerome Opeña &amp; Matt Hollingsworth1BCover BEric Canete2', '555569.jpg', '2026-06-27 15:14:52'),
+(53, 562621, 94290, NULL, '3', '2016-11-30', 'The last Mosak charge headlong into battle against the Mud King and his terrifying guardian, the Piper. Will Adam join the fight, even though the Mosak were the cause of his family’s downfall?List of covers and their creators:CoverNameCreator(s)Sidebar LocationACover AJerome Opeña &amp; Matt Hollingsworth1BCover BFarel Dalrymple2', '562621.jpg', '2026-06-27 15:14:53'),
+(54, 571709, 94290, NULL, '4', '2016-12-31', 'With the lives of their loved ones on the line, can the last of the Mosak decline the Mud King\'s offer to save them?List of covers and their creators:CoverNameCreator(s)Sidebar LocationACover AJerome Opeña &amp; Matt Hollingsworth1BCover BGreg Tocchini2', '571709.jpg', '2026-06-27 15:14:54'),
+(55, 597231, 94290, NULL, '6', '2017-05-31', 'There is a beautiful place where no one ever dies…List of covers and their creators:CoverNameCreator(s)Sidebar LocationACover AJerome Opeña &amp; Matt Hollingsworth1BCover BJames Harren2CSpawn Month Variant Cover CJerome Opeña &amp; Matt Hollingsworth3DSpawn Month Variant Cover DJerome Opeña4', '597231.jpg', '2026-06-27 15:14:56'),
+(56, 591791, 94290, NULL, '5', '2017-04-30', 'NEW STORY ARC!Adam Osidis and the Mosak come to a crossroads. The choices they make here will echo throughout the lands of Zhal for all eternity.List of covers and their creators:CoverNameCreator(s)Sidebar LocationACover AJerome Opeña &amp; Matt Hollingsworth1BCover BPhil Noto3CCover CRafael Albuquerque4DSilver Foil Cover DJerome Opeña &amp; Matt Hollingsworth52ndSecond Printing CoverJerome Opeña &amp; Matt Hollingsworth2', '591791.jpg', '2026-06-27 15:14:58'),
+(57, 606608, 94290, NULL, '7', '2017-07-31', 'Now suffering from the aftermath of the sentient swamp, The Mosak follow Adam to Jevalia’s childhood home to discover a trampled paradise, the bled souls of its heroes, and a fetid industry thirsting for more. SEVEN TO ETERNITY is proud to welcome superstar JAMES HARREN as a special guest artist to unveil the heights of heroism in a world awash with corruption.List of covers and their creators:CoverNameCreator(s)Sidebar LocationACover AJames Harren &amp; Matt Hollingsworth1BCover BJerome Opeña &amp; Matt Hollingsworth2CImages of Tomorrow Variant Cover CJerome Opeña &amp; Matt Hollingsworth3', '606608.jpg', '2026-06-27 15:14:59'),
+(58, 612011, 94290, NULL, '8', '2017-08-31', 'That which was pure and perfect is gone. Home, a distant memory. Some yet fight to preserve good, to resist the consumption of the whispers.List of covers and their creators:CoverNameCreator(s)Sidebar LocationACover AJerome Opeña &amp; Matt Hollingsworth1BCover BJames Harren &amp; Matt Hollingsworth2', '612011.jpg', '2026-06-27 15:15:00'),
+(59, 619610, 94290, NULL, '9', '2017-09-30', 'END OF STORY ARCDid Adam Osidis set out to save the world from the terror of the Mud King, or to save himself? Don’t miss the chilling finale to the second chapter of RICK REMENDER &amp; JEROME OPEÑA’s fantasy epic.List of covers and their creators:CoverNameCreator(s)Sidebar LocationACover AJerome Opeña &amp; Matt Hollingsworth1BCover BTradd Moore2', '619610.jpg', '2026-06-27 15:15:02'),
+(60, 678407, 94290, 'The Springs of Zhal, Part One', '10', '2018-08-01', '“THE SPRINGS OF ZHAL,” Part OneAdam Osidis and the Mud King travel the wastelands to the mythical Springs of Zhal, which promise a cure to Adam’s fatal disease—and the offer of the God of Whispers fulfilled. But when you deal with the devil, how soon before he lays claim to your soul?List of covers and their creators:CoverNameCreator(s)Sidebar LocationACover AJerome Opeña &amp; Matt Hollingsworth1BCover BCary Nord2CCover CMatteo Scalera3DVirgin Cover DJerome Opeña4', '678407.jpg', '2026-06-27 15:15:03'),
+(61, 685672, 94290, NULL, '11', '2018-09-18', 'The Mosak are on Adam Osidis and the Mud King’s trail, led by the best tracker in all of Zhal: Adam’s own daughter.List of covers and their creators:CoverNameCreator(s)Sidebar LocationACover AJerome Opeña &amp; Matt Hollingsworth1BCover BBengal2', '685672.jpg', '2026-06-27 15:15:05'),
+(62, 691307, 94290, NULL, '12', '2018-11-06', 'In order to save the Mud King, Adam must make a terrible choice.List of covers and their creators:CoverNameCreator(s)Sidebar LocationACover AJerome Opeña &amp; Matt Hollingsworth1BCover BDaniel Warren Johnson2', '691307.jpg', '2026-06-27 15:15:06'),
+(63, 701241, 94290, NULL, '13', '2019-02-20', 'END OF STORY ARCThe repercussions.List of covers and their creators:CoverNameCreator(s)Sidebar LocationACover AJerome Opeña &amp; Matt Hollingsworth1BCover BTommy Lee Edwards2', '701241.jpg', '2026-06-27 15:15:08'),
+(64, 819053, 94290, NULL, '14', '2020-11-20', '\"SPRINGS OF ZHAL,\" Part OneThe journey nears its end. Adam and The Mud King must make a final sacrifice before it does. The origin of the Springs revealed. One giant evil consumes everything, and you celebrate it excitedly.List of covers and their creators:CoverNameCreator(s)Sidebar LocationACover AJerome Opeña &amp; Matt Hollingsworth1BCover BJulian Totino Tedesco2C1:10 Retailer Incentive Variant Cover (Virgin)Jerome Opeña &amp; Matt Hollingsworth3', '819053.jpg', '2026-06-27 15:15:09'),
+(65, 821465, 94290, NULL, '15', '2020-12-19', '\"SPRINGS OF ZHAL,\" Part TwoThe Mud King reaps what he has sowed. Adam accepts his fate.List of covers and their creators:CoverNameCreator(s)Sidebar LocationACover AJerome Opeña &amp; Matt Hollingsworth1BCover BTula Lotay2C1:10 Retailer Incentive Variant Cover (Virgin)Jerome Opeña &amp; Matt Hollingsworth3', '821465.jpg', '2026-06-27 15:15:12'),
+(66, 825517, 94290, NULL, '16', '2021-01-22', '\"SPRINGS OF ZHAL,\" Part ThreeIn the penultimate issue of RICK REMENDER and JEROME OPENA\'s fantasy epic, the honor of the Osidis family is put to a final test as offers are presented and an even greater threat is unleashed.List of covers and their creators:CoverNameCreator(s)Sidebar LocationACover AJerome Opeña &amp; Matt Hollingsworth1BCover BAndre Araujo &amp; Matt Hollingsworth2C1:10 Retailer Incentive Variant Cover (Virgin)Jerome Opeña &amp; Matt Hollingsworth3', '825517.jpg', '2026-06-27 15:15:14'),
+(67, 877246, 94290, 'The Springs of Zhal, Conclusion', '17', '2021-08-08', 'SERIES FINALE!\"SPRINGS OF ZHAL,\" ConclusionA rule is ended.List of covers and their creators:CoverNameCreator(s)Sidebar LocationACover AJerome Opeña &amp; Matt Hollingsworth1BVirgin Cover BJerome Opeña &amp; Matt Hollingsworth2C1:10 Retailer Incentive Cover CDuncan Fegredo3D1:25 Retailer Incentive Cover DNic Klein4', '877246.jpg', '2026-06-27 15:15:16');
 
 -- --------------------------------------------------------
 
@@ -220,6 +253,7 @@ INSERT INTO `issues` (`id`, `issue_id`, `series_id`, `name`, `issue_number`, `co
 CREATE TABLE `publishers` (
   `id` int(10) UNSIGNED NOT NULL,
   `publisher_id` int(10) UNSIGNED NOT NULL,
+  `comicsorg_id` int(11) DEFAULT NULL,
   `name` varchar(255) NOT NULL,
   `logo` varchar(255) DEFAULT NULL,
   `actif` tinyint(1) NOT NULL DEFAULT 1,
@@ -231,19 +265,24 @@ CREATE TABLE `publishers` (
 -- Déchargement des données de la table `publishers`
 --
 
-INSERT INTO `publishers` (`id`, `publisher_id`, `name`, `logo`, `actif`, `last_sync`, `country`) VALUES
-(1, 31, 'Marvel', 'publisher_31.gif', 1, '2026-06-12 22:30:55', 'US'),
-(2, 10, 'DC Comics', 'publisher_10.jpg', 1, '2026-06-12 22:31:19', 'US'),
-(3, 4788, 'Urban Comics', 'publisher_4788.jpeg', 1, '2026-06-12 22:32:18', 'FR'),
-(4, 2245, 'Panini France', 'publisher_2245.jpg', 1, '2026-06-12 22:37:17', 'FR'),
-(5, 2923, 'Delcourt', 'publisher_2923.jpg', 1, '2026-06-12 22:37:40', 'FR'),
-(6, 513, 'Image', 'publisher_513.png', 1, '2026-06-12 22:38:27', 'US'),
-(7, 364, 'Dark Horse Comics', 'publisher_364.jpg', 1, '2026-06-13 12:10:08', 'US'),
-(8, 2932, 'Le Téméraire', 'publisher_2932.png', 1, '2026-06-13 13:17:19', 'FR'),
-(9, 2579, 'Paperback - Casterman', 'publisher_2579.jpg', 1, '2026-06-13 14:49:43', 'FR'),
-(10, 1133, 'Semic', 'publisher_1133.jpg', 1, '2026-06-13 14:51:19', 'FR'),
-(11, 1190, 'IDW Publishing', 'publisher_1190.jpg', 0, '2026-06-16 07:39:19', 'US'),
-(12, 708, 'WildStorm Productions', 'publisher_708.jpg', 1, '2026-06-16 09:28:15', 'US');
+INSERT INTO `publishers` (`id`, `publisher_id`, `comicsorg_id`, `name`, `logo`, `actif`, `last_sync`, `country`) VALUES
+(1, 31, 78, 'Marvel', 'publisher_31.gif', 1, '2026-06-12 22:30:55', 'US'),
+(2, 10, 54, 'DC Comics', 'publisher_10.jpg', 1, '2026-06-12 22:31:19', 'US'),
+(3, 4788, 7819, 'Urban Comics', 'publisher_4788.jpeg', 1, '2026-06-12 22:32:18', 'FR'),
+(4, 2245, 4475, 'Panini France', 'publisher_2245.jpg', 1, '2026-06-12 22:37:17', 'FR'),
+(5, 2923, 4035, 'Delcourt', 'publisher_2923.jpg', 1, '2026-06-12 22:37:40', 'FR'),
+(6, 513, 709, 'Image', 'publisher_513.png', 1, '2026-06-12 22:38:27', 'US'),
+(7, 364, 512, 'Dark Horse Comics', 'publisher_364.jpg', 1, '2026-06-13 12:10:08', 'US'),
+(8, 2932, 7318, 'Le Téméraire', 'publisher_2932.png', 1, '2026-06-13 13:17:19', 'FR'),
+(9, 2579, 52, 'Paperback - Casterman', 'publisher_2579.jpg', 1, '2026-06-13 14:49:43', 'FR'),
+(10, 1133, 4543, 'Semic', 'publisher_1133.jpg', 1, '2026-06-13 14:51:19', 'FR'),
+(11, 1190, 1977, 'IDW Publishing', 'publisher_1190.jpg', 0, '2026-06-16 07:39:19', 'US'),
+(12, 708, 15349, 'WildStorm Productions', 'publisher_708.jpg', 1, '2026-06-16 09:28:15', 'US'),
+(13, 2890, 265, 'Arédit - Artima', 'publisher_2890.jpg', 1, '2026-06-18 21:44:12', 'US'),
+(14, 1859, 2550, 'Dynamite Entertainment', 'publisher_1859.png', 1, '2026-06-20 19:07:53', 'US'),
+(15, 5533, 6930, 'Zenda', 'publisher_5533.png', 1, '2026-06-28 14:29:32', 'US'),
+(16, 7434, 12164, 'Bliss Comics', 'publisher_7434.jpg', 1, '2026-06-28 15:32:18', 'US'),
+(17, 1924, 4052, 'Valiant Entertainment', 'publisher_1924.jpg', 1, '2026-06-28 15:32:48', 'US');
 
 -- --------------------------------------------------------
 
@@ -278,7 +317,8 @@ INSERT INTO `series` (`id`, `series_id`, `name`, `start_year`, `count_of_issues`
 (11, 91098, 'Detective Comics', 2016, 176, 10, '91098.jpg', 1, '2026-06-16 18:13:50'),
 (12, 42563, 'Action Comics', 2011, 57, 10, '42563.jpg', 1, '2026-06-16 18:13:51'),
 (13, 91078, 'Action Comics', 2016, 143, 10, '91078.jpg', 1, '2026-06-16 18:13:52'),
-(14, 42594, 'Detective Comics', 2011, 57, 10, '42594.jpg', 1, '2026-06-16 18:13:53');
+(14, 42594, 'Detective Comics', 2011, 57, 10, '42594.jpg', 1, '2026-06-16 18:13:53'),
+(15, 94290, 'Seven To Eternity', 2016, 17, 513, '94290.jpg', 1, '2026-06-27 15:14:23');
 
 -- --------------------------------------------------------
 
@@ -367,7 +407,8 @@ ALTER TABLE `issues`
 --
 ALTER TABLE `publishers`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `unique_publisher_id` (`publisher_id`);
+  ADD UNIQUE KEY `unique_publisher_id` (`publisher_id`),
+  ADD KEY `comicsorg_id` (`comicsorg_id`);
 
 --
 -- Index pour la table `series`
@@ -410,7 +451,7 @@ ALTER TABLE `universes`
 -- AUTO_INCREMENT pour la table `api_requests`
 --
 ALTER TABLE `api_requests`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=69;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=84;
 
 --
 -- AUTO_INCREMENT pour la table `collections`
@@ -428,19 +469,19 @@ ALTER TABLE `formats`
 -- AUTO_INCREMENT pour la table `issues`
 --
 ALTER TABLE `issues`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
 
 --
 -- AUTO_INCREMENT pour la table `publishers`
 --
 ALTER TABLE `publishers`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT pour la table `series`
 --
 ALTER TABLE `series`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT pour la table `tomes`
